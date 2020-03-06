@@ -5,17 +5,14 @@
 using namespace Ubpa;
 using namespace std;
 
-struct A {
-	virtual ~A() {}
-};
-
+struct A { virtual ~A() = default; };
 struct B : A {};
 struct C : A {};
 
 struct GetName : public Visitor<GetName, A> {
 	GetName() {
-		Reg<A>();
-		Reg<B>();
+		Regist<A>();
+		Regist<B>();
 	}
 
 private:
@@ -31,7 +28,7 @@ private:
 
 int main() {
 	GetName v;
-	v.Reg([](C*) {
+	v.Regist([](C*) {
 		cout << "Lambda(C*)" << endl;
 		});
 

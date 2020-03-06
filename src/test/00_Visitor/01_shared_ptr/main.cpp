@@ -6,17 +6,17 @@
 using namespace Ubpa;
 using namespace std;
 
-struct A {
-	virtual ~A() {}
-};
+struct A { virtual ~A() = default; };
+struct B : A {};
+struct C : A {};
 
 struct B : A {};
 struct C : A {};
 
 struct GetName : public Visitor<GetName, A, std::shared_ptr> {
 	GetName() {
-		Reg<A>();
-		Reg<B>();
+		Regist<A>();
+		Regist<B>();
 	}
 
 private:
@@ -32,7 +32,7 @@ private:
 
 int main() {
 	GetName v;
-	v.Reg([](shared_ptr<C>) {
+	v.Regist([](shared_ptr<C>) {
 		cout << "Lambda(shared_ptr<C>)" << endl;
 		});
 
