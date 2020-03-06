@@ -24,7 +24,6 @@ namespace Ubpa {
 	class Visitor {
 		static_assert(std::is_polymorphic_v<Base>);
 		using BasePointer = AddPointer<Base>;
-	protected:
 	public:
 		// dynamic double dispatch
 		inline void Visit(BasePointer& ptr_base) const noexcept;
@@ -39,9 +38,13 @@ namespace Ubpa {
 
 		// regist menber function with
 		// - name: ImplVisit
-		// - argument: AddPointer<Derived>
-		template<typename Derived>
+		// - argument: AddPointer<Deriveds>
+		template<typename... Deriveds>
 		inline void Regist() noexcept;
+
+	private:
+		template<typename Derived>
+		inline void RegistOne() noexcept;
 
 	private:
 		detail::TypeMap<std::function<void(BasePointer)>> visitOps;

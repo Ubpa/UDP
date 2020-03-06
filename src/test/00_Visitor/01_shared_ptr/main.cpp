@@ -10,28 +10,24 @@ struct A { virtual ~A() = default; };
 struct B : A {};
 struct C : A {};
 
-struct B : A {};
-struct C : A {};
-
-struct GetName : public Visitor<GetName, A, std::shared_ptr> {
-	GetName() {
-		Regist<A>();
-		Regist<B>();
+struct CumtomVisitor : public Visitor<CumtomVisitor, A, std::shared_ptr> {
+	CumtomVisitor() {
+		Regist<A, B>();
 	}
 
 private:
 	friend class VisitorType;
 	void ImplVisit(shared_ptr<A>) {
-		cout << "GetName::ImplVisit(shared_ptr<A>)" << endl;
+		cout << "CumtomVisitor::ImplVisit(shared_ptr<A>)" << endl;
 	}
 	void ImplVisit(shared_ptr<B>) {
-		cout << "GetName::ImplVisit(shared_ptr<B>)" << endl;
+		cout << "CumtomVisitor::ImplVisit(shared_ptr<B>)" << endl;
 	}
 	string rst;
 };
 
 int main() {
-	GetName v;
+	CumtomVisitor v;
 	v.Regist([](shared_ptr<C>) {
 		cout << "Lambda(shared_ptr<C>)" << endl;
 		});
