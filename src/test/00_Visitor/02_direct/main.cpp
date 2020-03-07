@@ -12,7 +12,7 @@ struct C : A {};
 
 int main() {
 	{// test RawPtrVisitor
-		RawPtrVisitor<A> v;
+		BasicRawPtrVisitor<A> v;
 		v.Regist([](A*) {
 			cout << "Lambda(A*)" << endl;
 			});
@@ -33,7 +33,7 @@ int main() {
 	}
 
 	{// test SharedPtrVisitor
-		SharedPtrVisitor<A> v;
+		BasicSharedPtrVisitor<A> v;
 		v.Regist([](shared_ptr<A>) {
 			cout << "Lambda(shared_ptr<A>)" << endl;
 			});

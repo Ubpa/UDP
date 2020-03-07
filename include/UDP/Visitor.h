@@ -13,18 +13,17 @@ namespace Ubpa::detail::Visitor_ {
 }
 
 namespace Ubpa {
-	template<typename Base, typename Impl = void> class SharedPtrVisitor;
-	template<typename Base, typename Impl = void> class RawPtrVisitor;
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>
+	class MultiVisitor;
 
-	// use VisitorOf<Base> to get Visitor of Base
-	template<typename Impl, typename... Bases> class SharedPtrMultiVisitor;
-	template<typename Impl, typename... Bases> class RawPtrMultiVisitor;
+	template<typename Impl, typename Base> class RawPtrVisitor;
+	template<typename Impl, typename Base> class SharedPtrVisitor;
+	template<typename Base> class BasicRawPtrVisitor;
+	template<typename Base> class BasicSharedPtrVisitor;
 
 	// non-invasive visitor pattern
 	// AddPointer: std::add_pointer_t, std::shared_ptr, ...
-	template<typename Base, typename Impl,
-		template<typename>class AddPointer = std::add_pointer_t,
-		typename PointerCaster = detail::Visitor_::PointerCaster<AddPointer>>
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
 	class Visitor {
 		// check it in Regist
 		// static_assert(std::is_polymorphic_v<Base>);
@@ -52,12 +51,17 @@ namespace Ubpa {
 		inline void RegistOne(Func&& func) noexcept;
 		template<typename Derived>
 		inline void RegistOne() noexcept;
+		template<typename Derived>
+		inline void RegistOne(Impl* impl) noexcept; // for MultiVisitor
 
 	private:
 		detail::TypeMap<std::function<void(BasePointer)>> visitOps;
 
 	private:
 		struct Accessor;
+
+		template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>
+		friend class MultiVisitor;
 
 	//public:
 	//	// regist : callable object

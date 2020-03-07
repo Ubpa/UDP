@@ -10,7 +10,7 @@ struct A { virtual ~A() = default; };
 struct B : A {};
 struct C : A {};
 
-struct CumtomVisitor : public SharedPtrVisitor<A, CumtomVisitor> {
+struct CumtomVisitor final : public SharedPtrVisitor<CumtomVisitor, A> {
 	CumtomVisitor() {
 		Regist<A, B>();
 	}
