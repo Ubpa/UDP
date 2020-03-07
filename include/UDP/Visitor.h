@@ -13,12 +13,12 @@ namespace Ubpa::detail::Visitor_ {
 }
 
 namespace Ubpa {
-	template<typename Base> class SharedPtrVisitor; // final
-	template<typename Base> class RawPtrVisitor;    // final
+	template<typename Base, typename Impl = void> class SharedPtrVisitor;
+	template<typename Base, typename Impl = void> class RawPtrVisitor;
 
 	// non-invasive visitor pattern
 	// AddPointer: std::add_pointer_t, std::shared_ptr, ...
-	template<typename Impl, typename Base,
+	template<typename Base, typename Impl,
 		template<typename>class AddPointer = std::add_pointer_t,
 		typename PointerCaster = detail::Visitor_::PointerCaster<AddPointer>>
 	class Visitor {
