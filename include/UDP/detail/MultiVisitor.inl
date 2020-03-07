@@ -66,7 +66,7 @@ namespace Ubpa {
 		: public MultiVisitor<Impl, std::add_pointer_t, detail::Visitor_::PointerCaster<std::add_pointer_t>, Bases...> {};
 
 	template<typename... Bases>
-	class BasicRawPtrMultiVisitor final
+	class BasicRawPtrMultiVisitor
 		: public RawPtrMultiVisitor<detail::Visitor_::VoidImpl, Bases...> {};
 
 	template<typename Impl, typename... Bases>
@@ -74,6 +74,6 @@ namespace Ubpa {
 		: public MultiVisitor<Impl, std::shared_ptr, detail::Visitor_::PointerCaster<std::shared_ptr>, Bases...> {};
 
 	template<typename... Bases>
-	class BasicSharedPtrMultiVisitor final
+	class BasicSharedPtrMultiVisitor
 		: public SharedPtrMultiVisitor<detail::Visitor_::VoidImpl, Bases...> {};
 }

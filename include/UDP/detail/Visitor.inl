@@ -74,7 +74,7 @@ namespace Ubpa {
 	template<typename... Funcs>
 	void Visitor<Impl, AddPointer, PointerCaster, Base>::Regist(Funcs&&... func) noexcept {
 		static_assert(std::is_polymorphic_v<Base>);
-		static_assert(std::is_final_v<Impl>);
+		//static_assert(std::is_final_v<Impl>);
 		static_assert(IsSet_v<TypeList<detail::Visitor_::RemovePtr<Front_t<typename FuncTraits<Funcs>::ArgList>>...>>);
 		(RegistOne<Funcs>(std::forward<Funcs>(func)), ...);
 	}
@@ -104,7 +104,7 @@ namespace Ubpa {
 	template<typename... Deriveds>
 	inline void Visitor<Impl, AddPointer, PointerCaster, Base>::Regist() noexcept {
 		static_assert(std::is_polymorphic_v<Base>);
-		static_assert(std::is_final_v<Impl>);
+		//static_assert(std::is_final_v<Impl>);
 		static_assert(IsSet_v<TypeList<Deriveds...>>);
 		(RegistOne<Deriveds>(), ...);
 	}
@@ -141,10 +141,10 @@ namespace Ubpa {
 		: public Visitor<Impl, std::shared_ptr, detail::Visitor_::PointerCaster<std::shared_ptr>, Base> {};
 
 	template<typename Base>
-	class BasicSharedPtrVisitor final : public SharedPtrVisitor<detail::Visitor_::VoidImpl, Base> {};
+	class BasicSharedPtrVisitor : public SharedPtrVisitor<detail::Visitor_::VoidImpl, Base> {};
 
 	template<typename Base>
-	class BasicRawPtrVisitor final : public RawPtrVisitor<detail::Visitor_::VoidImpl, Base> {};
+	class BasicRawPtrVisitor : public RawPtrVisitor<detail::Visitor_::VoidImpl, Base> {};
 }
 
 namespace Ubpa::detail::Visitor_ {

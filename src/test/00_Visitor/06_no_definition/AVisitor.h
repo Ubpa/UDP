@@ -7,7 +7,7 @@ namespace Ubpa{
 	struct B;
 	struct C;
 
-	class AVisitor final : public RawPtrVisitor<AVisitor, A> {
+	class AVisitor : public RawPtrVisitor<AVisitor, A> {
 	public:
 		AVisitor();
 	protected:
