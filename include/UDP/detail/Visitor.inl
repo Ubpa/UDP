@@ -11,6 +11,16 @@ namespace Ubpa::detail::Visitor_ {
 }
 
 namespace Ubpa {
+	// ref: https://stackoverflow.com/questions/8523762/crtp-with-protected-derived-member
+	template<typename Base, typename Impl, template<typename>class AddPointer, typename PointerCaster>
+	struct Visitor<Base, Impl, AddPointer, PointerCaster>::Accessor : public Impl {
+		template<typename Derived>
+		inline static void ImplVisitOf(Impl*const impl, AddPointer<Base> ptrBase) noexcept {
+			constexpr void(Impl:: * f)(AddPointer<Derived>) = &Impl::ImplVisit;
+			(impl->*f)(PointerCaster::template run<Derived, Base>(ptrBase));
+		}
+	};
+
 	template<typename Base, typename Impl, template<typename>class AddPointer, typename PointerCaster>
 	void Visitor<Base, Impl, AddPointer,PointerCaster>::Visit(BasePointer& ptrBase) const noexcept {
 		// 不是用 typeid(T)，因为可能是多态类
@@ -69,9 +79,6 @@ namespace Ubpa {
 	template<typename Base, typename Impl, template<typename>class AddPointer, typename PointerCaster>
 	template<typename Derived>
 	void Visitor<Base, Impl, AddPointer, PointerCaster>::RegistOne() noexcept {
-		using DerivedPointer = AddPointer<Derived>;
-		using Func = void(Impl::*)(DerivedPointer);
-
 #ifndef NDEBUG
 		if (visitOps.find(typeid(Derived)) != visitOps.end()) {
 			std::cout << "WARNING::" << typeid(Impl).name() << "::Visit:" << std::endl
@@ -80,8 +87,7 @@ namespace Ubpa {
 #endif // !NDEBUG
 
 		visitOps[typeid(Derived)] = [impl = static_cast<Impl*>(this)](BasePointer ptrBase) {
-			constexpr Func f = &Impl::ImplVisit;
-			(impl->*f)(PointerCaster::template run<Derived, Base>(ptrBase));
+			Accessor::template ImplVisitOf<Derived>(impl, ptrBase);
 		};
 	}
 
@@ -118,16 +124,34 @@ namespace Ubpa {
 	template<typename Base, typename Impl>
 	class SharedPtrVisitor
 		: public Visitor<Base, Impl, std::shared_ptr> {};
+
 	template<typename Base>
 	class SharedPtrVisitor<Base, void> final
-		: public Visitor<void, Base, std::shared_ptr> {};
+		: public Visitor<Base, void, std::shared_ptr> {};
 
 	template<typename Base, typename Impl>
-	class RawPtrVisitor
-		: public Visitor<Base, Impl> {};
+	class RawPtrVisitor : public Visitor<Base, Impl> {};
+
 	template<typename Base>
-	class RawPtrVisitor<Base, void> final
-		: public Visitor<Base, void> {};
+	class RawPtrVisitor<Base, void> final : public Visitor<Base, void> {};
+
+	template<typename Impl, typename... Bases>
+	class SharedPtrMultiVisitor : public Visitor<Bases, Impl, std::shared_ptr>... {
+	public:
+		using Visitor<Bases, Impl, std::shared_ptr>::Visit...;
+
+		template<typename Base>
+		using VisitorOf = Visitor<Base, Impl>;
+	};
+
+	template<typename Impl, typename... Bases>
+	class RawPtrMultiVisitor : public Visitor<Bases, Impl>... {
+	public:
+		using Visitor<Bases, Impl>::Visit...;
+
+		template<typename Base>
+		using VisitorOf = Visitor<Base, Impl>;
+	};
 }
 
 namespace Ubpa::detail::Visitor_ {

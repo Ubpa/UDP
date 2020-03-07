@@ -15,6 +15,8 @@ namespace Ubpa::detail::Visitor_ {
 namespace Ubpa {
 	template<typename Base, typename Impl = void> class SharedPtrVisitor;
 	template<typename Base, typename Impl = void> class RawPtrVisitor;
+	template<typename Impl, typename... Bases> class SharedPtrMultiVisitor;
+	template<typename Impl, typename... Bases> class RawPtrMultiVisitor;
 
 	// non-invasive visitor pattern
 	// AddPointer: std::add_pointer_t, std::shared_ptr, ...
@@ -33,10 +35,6 @@ namespace Ubpa {
 		template<typename... Funcs>
 		inline void Regist(Funcs&&... func) noexcept;
 
-		// regist : callable object
-		/*template<typename... Deriveds, typename FuncObj>
-		inline void RegistOverload(FuncObj&& funcObj) noexcept;*/
-
 	protected:
 		using VisitorType = Visitor;
 
@@ -51,13 +49,22 @@ namespace Ubpa {
 		inline void RegistOne(Func&& func) noexcept;
 		template<typename Derived>
 		inline void RegistOne() noexcept;
-		/*template<typename Derived, typename FuncObj>
-		void RegistOverloadOne(FuncObj& funcObj) noexcept;
-		template<typename Derived, typename FuncObj>
-		void RegistOverloadOne(FuncObj&& funcObj) noexcept;*/
 
 	private:
 		detail::TypeMap<std::function<void(BasePointer)>> visitOps;
+
+	private:
+		struct Accessor;
+
+	//public:
+	//	// regist : callable object
+	//	template<typename... Deriveds, typename FuncObj>
+	//	inline void RegistOverload(FuncObj&& funcObj) noexcept;
+	//private:
+	//	template<typename Derived, typename FuncObj>
+	//	void RegistOverloadOne(FuncObj& funcObj) noexcept;
+	//	template<typename Derived, typename FuncObj>
+	//	void RegistOverloadOne(FuncObj&& funcObj) noexcept;
 	};
 }
 

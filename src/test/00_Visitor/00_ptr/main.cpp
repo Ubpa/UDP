@@ -14,8 +14,7 @@ struct CumtomVisitor : public RawPtrVisitor<A, CumtomVisitor> {
 		Regist<A, B>();
 	}
 
-private:
-	friend class VisitorType;
+protected:
 	void ImplVisit(A*) {
 		cout << "CumtomVisitor::ImplVisit(A*)" << endl;
 	}

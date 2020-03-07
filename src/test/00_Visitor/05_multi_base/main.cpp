@@ -17,22 +17,15 @@ struct D {
 struct E : D {};
 struct F : D {};
 
-struct AD_Visitor : 
-	RawPtrVisitor<A, AD_Visitor>,
-	RawPtrVisitor<D, AD_Visitor>
+struct AD_Visitor final : 
+	RawPtrMultiVisitor<AD_Visitor, A, D>
 {
 	AD_Visitor() {
-		RawPtrVisitor<A, AD_Visitor>::Regist<A, B, C>();
-		RawPtrVisitor<D, AD_Visitor>::Regist<D, E, F>();
+		VisitorOf<A>::Regist<A, B, C>();
+		VisitorOf<D>::Regist<D, E, F>();
 	}
 
-	using RawPtrVisitor<A, AD_Visitor>::Visit;
-	using RawPtrVisitor<D, AD_Visitor>::Visit;
-
-private:
-	friend class Visitor<A, AD_Visitor>;
-	friend class Visitor<D, AD_Visitor>;
-
+protected:
 	void ImplVisit(A*) {
 		cout << "Obj::ImplVisit(A*)" << endl;
 	}
