@@ -17,9 +17,8 @@ struct D {
 struct E : D {};
 struct F : D {};
 
-struct AD_Visitor final : 
-	RawPtrMultiVisitor<AD_Visitor, A, D>
-{
+class AD_Visitor final : public RawPtrMultiVisitor<AD_Visitor, A, D> {
+public:
 	AD_Visitor() {
 		VisitorOf<A>::Regist<A, B, C>();
 		VisitorOf<D>::Regist<D, E, F>();

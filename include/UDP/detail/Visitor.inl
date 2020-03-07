@@ -23,7 +23,6 @@ namespace Ubpa {
 
 	template<typename Base, typename Impl, template<typename>class AddPointer, typename PointerCaster>
 	void Visitor<Base, Impl, AddPointer,PointerCaster>::Visit(BasePointer& ptrBase) const noexcept {
-		// 不是用 typeid(T)，因为可能是多态类
 		auto target = visitOps.find(typeid(*ptrBase));
 		if (target != visitOps.end())
 			target->second(ptrBase);
@@ -63,7 +62,6 @@ namespace Ubpa {
 		}
 #endif // !NDEBUG
 
-
 		visitOps[typeid(Derived)] = [func = std::forward<Func>(func)](BasePointer ptrBase) {
 			func(PointerCaster::template run<Derived, Base>(ptrBase));
 		};
@@ -72,6 +70,7 @@ namespace Ubpa {
 	template<typename Base, typename Impl, template<typename>class AddPointer, typename PointerCaster>
 	template<typename... Funcs>
 	void Visitor<Base, Impl, AddPointer, PointerCaster>::Regist(Funcs&&... func) noexcept {
+		static_assert(std::is_polymorphic_v<Base>);
 		static_assert(IsSet_v<TypeList<std::decay_t<decltype(*Front_t<typename FuncTraits<Funcs>::ArgList>{ nullptr })>...>>);
 		(RegistOne<Funcs>(std::forward<Funcs>(func)), ...);
 	}
@@ -94,6 +93,7 @@ namespace Ubpa {
 	template<typename Base, typename Impl, template<typename>class AddPointer, typename PointerCaster>
 	template<typename... Deriveds>
 	inline void Visitor<Base, Impl, AddPointer, PointerCaster>::Regist() noexcept {
+		static_assert(std::is_polymorphic_v<Base>);
 		static_assert(IsSet_v<TypeList<Deriveds...>>);
 		(RegistOne<Deriveds>(), ...);
 	}
