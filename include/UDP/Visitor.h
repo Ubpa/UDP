@@ -15,6 +15,8 @@ namespace Ubpa::detail::Visitor_ {
 namespace Ubpa {
 	template<typename Base, typename Impl = void> class SharedPtrVisitor;
 	template<typename Base, typename Impl = void> class RawPtrVisitor;
+
+	// use VisitorOf<Base> to get Visitor of Base
 	template<typename Impl, typename... Bases> class SharedPtrMultiVisitor;
 	template<typename Impl, typename... Bases> class RawPtrMultiVisitor;
 
