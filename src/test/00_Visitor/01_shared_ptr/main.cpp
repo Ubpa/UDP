@@ -23,7 +23,6 @@ private:
 	void ImplVisit(shared_ptr<B>) {
 		cout << "CumtomVisitor::ImplVisit(shared_ptr<B>)" << endl;
 	}
-	string rst;
 };
 
 int main() {

@@ -22,7 +22,6 @@ private:
 	void ImplVisit(B*) {
 		cout << "CumtomVisitor::ImplVisit(B*)" << endl;
 	}
-	string rst;
 };
 
 int main() {

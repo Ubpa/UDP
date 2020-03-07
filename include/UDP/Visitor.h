@@ -26,25 +26,35 @@ namespace Ubpa {
 		using BasePointer = AddPointer<Base>;
 	public:
 		// dynamic double dispatch
-		inline void Visit(BasePointer& ptr_base) const noexcept;
-		inline void Visit(BasePointer&& ptr_base) const noexcept;
+		inline void Visit(BasePointer& ptrBase) const noexcept;
+		inline void Visit(BasePointer&& ptrBase) const noexcept;
 
-		// regist: callable object, raw function (pointer), lambda function
-		template<typename Func>
-		inline void Regist(Func&& func) noexcept;
+		// regist : lambda function, callable object, raw function (pointer)
+		template<typename... Funcs>
+		inline void Regist(Funcs&&... func) noexcept;
+
+		// regist : callable object
+		/*template<typename... Deriveds, typename FuncObj>
+		inline void RegistOverload(FuncObj&& funcObj) noexcept;*/
 
 	protected:
 		using VisitorType = Visitor;
 
 		// regist menber function with
-		// - name: ImplVisit
-		// - argument: AddPointer<Deriveds>
+		// - name     : ImplVisit
+		// - argument : AddPointer<Deriveds>
 		template<typename... Deriveds>
 		inline void Regist() noexcept;
 
 	private:
+		template<typename Func>
+		inline void RegistOne(Func&& func) noexcept;
 		template<typename Derived>
 		inline void RegistOne() noexcept;
+		/*template<typename Derived, typename FuncObj>
+		void RegistOverloadOne(FuncObj& funcObj) noexcept;
+		template<typename Derived, typename FuncObj>
+		void RegistOverloadOne(FuncObj&& funcObj) noexcept;*/
 
 	private:
 		detail::TypeMap<std::function<void(BasePointer)>> visitOps;
