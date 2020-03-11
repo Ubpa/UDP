@@ -14,17 +14,25 @@ struct CumtomVisitor : public RawPtrVisitor<CumtomVisitor, A> {
 		Regist<A, B>();
 	}
 
+	virtual ~CumtomVisitor() {}
+
 protected:
 	void ImplVisit(A*) {
 		cout << "CumtomVisitor::ImplVisit(A*)" << endl;
 	}
-	void ImplVisit(B*) {
+	virtual void ImplVisit(B*) {
 		cout << "CumtomVisitor::ImplVisit(B*)" << endl;
 	}
 };
 
+struct DerivedCumtomVisitor : CumtomVisitor {
+	virtual void ImplVisit(B*) {
+		cout << "DerivedCumtomVisitor::ImplVisit(B*)" << endl;
+	}
+};
+
 int main() {
-	CumtomVisitor v;
+	DerivedCumtomVisitor v;
 	v.Regist([](C*) {
 		cout << "Lambda(C*)" << endl;
 		});

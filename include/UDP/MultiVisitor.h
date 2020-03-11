@@ -19,6 +19,10 @@ namespace Ubpa {
 		template<typename DerivedPtr>
 		inline void Visit(DerivedPtr&& ptr_derived) const noexcept;
 
+		// for Derived without default constructor
+		template<typename DerivedPtr>
+		static void RegistVFPtr(DerivedPtr&& ptrDerived) noexcept;
+
 	protected:
 		// regist menber function with
 		// - name : ImplVisit

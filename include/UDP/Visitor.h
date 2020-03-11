@@ -37,6 +37,10 @@ namespace Ubpa {
 		template<typename... Funcs>
 		inline void Regist(Funcs&&... func) noexcept;
 
+		// for Derived without default constructor
+		template<typename DerivedPtr>
+		static void RegistVFPtr(DerivedPtr&& ptrDerived) noexcept;
+
 	protected:
 		using VisitorType = Visitor;
 
@@ -55,23 +59,14 @@ namespace Ubpa {
 		inline void RegistOne(Impl* impl) noexcept; // for MultiVisitor
 
 	private:
-		detail::TypeMap<std::function<void(BasePointer)>> visitOps;
+		// vfptr to callbacks
+		std::unordered_map<const void*, std::function<void(BasePointer)>> callbacks;
 
 	private:
 		struct Accessor;
 
 		template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>
 		friend class MultiVisitor;
-
-	//public:
-	//	// regist : callable object
-	//	template<typename... Deriveds, typename FuncObj>
-	//	inline void RegistOverload(FuncObj&& funcObj) noexcept;
-	//private:
-	//	template<typename Derived, typename FuncObj>
-	//	void RegistOverloadOne(FuncObj& funcObj) noexcept;
-	//	template<typename Derived, typename FuncObj>
-	//	void RegistOverloadOne(FuncObj&& funcObj) noexcept;
 	};
 }
 

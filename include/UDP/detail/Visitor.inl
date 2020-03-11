@@ -1,6 +1,7 @@
 #pragma once
 
 #include <UTemplate/Typelist.h>
+#include <cassert>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -9,11 +10,44 @@
 namespace Ubpa::detail::Visitor_ {
 	template<typename Pointer>
 	using RemovePtr = std::decay_t<decltype(*std::decay_t<Pointer>{ nullptr })>;
-	
+
 	struct VoidImpl final {};
+
+	template<typename T>
+	inline static const void* vfptr(T* ptr) noexcept {
+		assert(ptr != nullptr);
+		return *reinterpret_cast<void**>(ptr);
+	}
+
+	template<typename Ptr>
+	inline static const void* vfptr(Ptr&& ptr) noexcept {
+		return vfptr(&(*ptr));
+	}
+
+	template<typename T>
+	struct vfptr_of {
+		inline static void regist(T* ptr) noexcept {
+			value = vfptr(ptr);
+		}
+		template<typename Ptr>
+		inline static void regist(Ptr&& ptr) noexcept {
+			regist(&(*ptr));
+		}
+
+		inline static const void* value{ nullptr };
+	};
 }
 
 namespace Ubpa {
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
+	template<typename DerivedPtr>
+	void Visitor<Impl, AddPointer, PointerCaster, Base>::RegistVFPtr(DerivedPtr&& ptrDerived) noexcept {
+		using Derived = detail::Visitor_::RemovePtr<DerivedPtr>;
+		static_assert(std::is_base_of_v<Base, Derived>);
+		assert(detail::Visitor_::vfptr_of<Derived>::value == nullptr);
+		detail::Visitor_::vfptr_of<Derived>::regist(ptrDerived);
+	}
+
 	// ref: https://stackoverflow.com/questions/8523762/crtp-with-protected-derived-member
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
 	struct Visitor<Impl, AddPointer, PointerCaster, Base>::Accessor : public Impl {
@@ -26,8 +60,8 @@ namespace Ubpa {
 
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
 	void Visitor<Impl, AddPointer, PointerCaster, Base>::Visit(BasePointer& ptrBase) const noexcept {
-		auto target = visitOps.find(typeid(*ptrBase));
-		if (target != visitOps.end())
+		auto target = callbacks.find(detail::Visitor_::vfptr(ptrBase));
+		if (target != callbacks.end())
 			target->second(ptrBase);
 #ifndef NDEBUG
 		else {
@@ -39,8 +73,8 @@ namespace Ubpa {
 
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
 	void Visitor<Impl, AddPointer, PointerCaster, Base>::Visit(BasePointer&& ptrBase) const noexcept {
-		auto target = visitOps.find(typeid(*ptrBase));
-		if (target != visitOps.end())
+		auto target = callbacks.find(detail::Visitor_::vfptr(ptrBase));
+		if (target != callbacks.end())
 			target->second(std::move(ptrBase));
 #ifndef NDEBUG
 		else {
@@ -58,14 +92,22 @@ namespace Ubpa {
 		static_assert(std::is_same_v<DerivedPointer, AddPointer<Derived>>);
 		static_assert(std::is_base_of_v<Base, Derived>);
 
+		if constexpr (std::is_constructible_v<Derived>) {
+			if(detail::Visitor_::vfptr_of<Derived>::value == nullptr)
+				detail::Visitor_::vfptr_of<Derived>::regist(&Derived{});
+		}
+
+		const void* p = detail::Visitor_::vfptr_of<Derived>::value;
+		assert(p != nullptr);
+
 #ifndef NDEBUG
-		if (visitOps.find(typeid(Derived)) != visitOps.end()) {
+		if (callbacks.find(p) != callbacks.end()) {
 			std::cout << "WARNING::" << typeid(Impl).name() << "::Visit:" << std::endl
 				<< "\t" << "repeatedly regist " << typeid(Derived).name() << std::endl;
 		}
 #endif // !NDEBUG
 
-		visitOps[typeid(Derived)] = [func = std::forward<Func>(func)](BasePointer ptrBase) {
+		callbacks[p] = [func = std::forward<Func>(func)](BasePointer ptrBase) {
 			func(PointerCaster::template run<Derived, Base>(ptrBase));
 		};
 	}
@@ -88,14 +130,22 @@ namespace Ubpa {
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
 	template<typename Derived>
 	inline void Visitor<Impl, AddPointer, PointerCaster, Base>::RegistOne(Impl* impl) noexcept {
+		if constexpr (std::is_constructible_v<Derived>) {
+			if (detail::Visitor_::vfptr_of<Derived>::value == nullptr)
+				detail::Visitor_::vfptr_of<Derived>::regist(&Derived{});
+		}
+
+		const void* p = detail::Visitor_::vfptr_of<Derived>::value;
+		assert(p != nullptr);
+
 #ifndef NDEBUG
-		if (visitOps.find(typeid(Derived)) != visitOps.end()) {
+		if (callbacks.find(p) != callbacks.end()) {
 			std::cout << "WARNING::" << typeid(Impl).name() << "::Visit:" << std::endl
 				<< "\t" << "repeatedly regist " << typeid(Derived).name() << std::endl;
 		}
 #endif // !NDEBUG
 
-		visitOps[typeid(Derived)] = [impl](BasePointer ptrBase) {
+		callbacks[p] = [impl](BasePointer ptrBase) {
 			Accessor::template ImplVisitOf<Derived>(impl, ptrBase);
 		};
 	}
@@ -104,33 +154,9 @@ namespace Ubpa {
 	template<typename... Deriveds>
 	inline void Visitor<Impl, AddPointer, PointerCaster, Base>::Regist() noexcept {
 		static_assert(std::is_polymorphic_v<Base>);
-		//static_assert(std::is_final_v<Impl>);
 		static_assert(IsSet_v<TypeList<Deriveds...>>);
 		(RegistOne<Deriveds>(), ...);
 	}
-
-	/*template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
-	template<typename Derived, typename FuncObj>
-	void Visitor<Impl, AddPointer, PointerCaster, Base>::RegistOverloadOne(FuncObj& funcObj) noexcept {
-		visitOps[typeid(Derived)] = [&funcObj](BasePointer ptrBase) {
-			funcObj(PointerCaster::template run<Derived, Base>(ptrBase));
-		};
-	}
-
-	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
-	template<typename Derived, typename FuncObj>
-	void Visitor<Impl, AddPointer, PointerCaster, Base>::RegistOverloadOne(FuncObj&& funcObj) noexcept {
-		visitOps[typeid(Derived)] = [funcObj=std::move(funcObj)](BasePointer ptrBase) {
-			funcObj(PointerCaster::template run<Derived, Base>(ptrBase));
-		};
-	}
-
-	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
-	template<typename... Deriveds, typename FuncObj>
-	void Visitor<Impl, AddPointer, PointerCaster, Base>::RegistOverload(FuncObj&& funcObj) noexcept {
-		static_assert(IsSet_v<TypeList<Deriveds...>>);
-		(RegistOverloadOne<Deriveds>(std::forward<FuncObj>(funcObj)), ...);
-	}*/
 
 	template<typename Impl, typename Base>
 	class RawPtrVisitor
