@@ -1,7 +1,5 @@
 #pragma once
 
-#include "detail/TypeMap.h"
-
 #include <UTemplate/FuncTraits.h>
 
 #include <functional>
