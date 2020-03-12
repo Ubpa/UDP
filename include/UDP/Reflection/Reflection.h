@@ -25,21 +25,21 @@ namespace Ubpa {
 		inline Reflection& Regist(T Obj::* ptr, const std::string& name) noexcept;
 
 		template<typename U = void>
-		inline const MemVar<U Obj::*> Var(const std::string& name) const noexcept;
+		inline const MemVar<U Obj::*>* Var(const std::string& name) const noexcept;
 
-		inline const std::map<std::string, MemVar<void* Obj::*>> Vars() const noexcept;
+		inline const std::map<std::string, MemVar<void* Obj::*>*> Vars() const noexcept;
 
 		template<typename Ret = void, typename RObj, typename... Args>
 		inline Ret Call(const std::string& name, RObj&& obj, Args&&... args);
 
-		inline std::map<std::string, MemFunc<void (Obj::*)(void*)>> Funcs() const noexcept { return n2mf; }
+		inline std::map<std::string, MemFunc<void (Obj::*)(void*)>*> Funcs() const noexcept { return n2mf; }
 
-		inline std::map<std::string, MemFunc<void (Obj::*)(void*)>> CFuncs() const noexcept { return n2mfc; }
+		inline std::map<std::string, MemFunc<void (Obj::*)(void*)>*> CFuncs() const noexcept { return n2mfc; }
 
 	private:
-		std::map<std::string, MemVar<void* Obj::*>> n2mv;
-		std::map<std::string, MemFunc<void (Obj::*)(void*)>> n2mf;
-		std::map<std::string, MemFunc<void (Obj::*)(void*) const>> n2mfc;
+		std::map<std::string, MemVar<void* Obj::*> *> n2mv;
+		std::map<std::string, MemFunc<void (Obj::*)(void*)> *> n2mf;
+		std::map<std::string, MemFunc<void (Obj::*)(void*) const> *> n2mfc;
 		std::string name;
 		Reflection() = default;
 

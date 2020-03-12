@@ -4,3 +4,6 @@
 [submodule "external/UTemplate"]
 	path = external/UTemplate
 	url = https://github.com/Ubpa/UTemplate
+[submodule "external/nameof"]
+	path = external/nameof
+	url = https://github.com/Neargye/nameof

@@ -52,6 +52,7 @@ include(UbpaTool)
 include_directories (
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/external/UTemplate/include
+	${PROJECT_SOURCE_DIR}/external/nameof/include
 	# $ENV{XXX_INCLUDE_PATH}
 	# ...
 )

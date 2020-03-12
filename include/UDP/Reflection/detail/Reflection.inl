@@ -23,7 +23,7 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename U>
-	const MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) const noexcept {
+	const MemVar<U Obj::*>* Reflection<Obj>::Var(const std::string& name) const noexcept {
 		auto target = n2mv.find(name);
 		if (target != n2mv.end())
 			return target->second.As<U>();
@@ -37,7 +37,7 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	const std::map<std::string, MemVar<void* Obj::*>> Reflection<Obj>::Vars() const noexcept {
+	const std::map<std::string, MemVar<void* Obj::*>*> Reflection<Obj>::Vars() const noexcept {
 		return n2mv;
 	}
 
@@ -59,7 +59,7 @@ namespace Ubpa::detail::Reflection_ {
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mf[name] = MemFunc<Func Obj::*>{ ptr };
+			refl.n2mf[name] = new MemFunc<Func Obj::*>{ ptr };
 		}
 	};
 
@@ -73,7 +73,7 @@ namespace Ubpa::detail::Reflection_ {
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mfc[name] = MemFunc<Func Obj::*>{ ptr };
+			refl.n2mfc[name] = new MemFunc<Func Obj::*>{ ptr };
 		}
 	};
 
@@ -86,7 +86,7 @@ namespace Ubpa::detail::Reflection_ {
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mv[name] = MemVar<T Obj::*>{ ptr };
+			refl.n2mv[name] = new MemVar<T Obj::*>{ ptr };
 		}
 	};
 
