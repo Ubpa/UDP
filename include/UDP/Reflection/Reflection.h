@@ -25,7 +25,7 @@ namespace Ubpa {
 		inline Reflection& Regist(T Obj::* ptr, const std::string& name) noexcept;
 
 		template<typename U = void>
-		inline const MemVar<U Obj::*>* Var(const std::string& name) const noexcept;
+		inline const MemVar<U Obj::*> Var(const std::string& name) const noexcept;
 
 		inline const std::map<std::string, MemVar<void* Obj::*>*> Vars() const noexcept;
 

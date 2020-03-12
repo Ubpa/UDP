@@ -23,10 +23,10 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename U>
-	const MemVar<U Obj::*>* Reflection<Obj>::Var(const std::string& name) const noexcept {
+	const MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) const noexcept {
 		auto target = n2mv.find(name);
 		if (target != n2mv.end())
-			return target->second.As<U>();
+			return target->second->As<U>();
 		else {
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Var:" << std::endl
@@ -96,10 +96,10 @@ namespace Ubpa::detail::Reflection_ {
 		static Ret run(Reflection<Obj>& refl, const std::string& name, PtrObj&& obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
-				return target_mf->second.template Call<Ret>(*obj, std::forward<Args>(args)...);
+				return target_mf->second->template Call<Ret>(*obj, std::forward<Args>(args)...);
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
-				return target_mfc->second.template Call<Ret>(*obj, std::forward<Args>(args)...);
+				return target_mfc->second->template Call<Ret>(*obj, std::forward<Args>(args)...);
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Call:" << std::endl
 				<< "\t" << "not found " << name << std::endl;
@@ -114,10 +114,10 @@ namespace Ubpa::detail::Reflection_ {
 		static Ret run(Reflection<Obj>& refl, const std::string& name, Obj obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
-				return target_mf->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mf->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
-				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mfc->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Call:" << std::endl
 				<< "\t" << "not found " << name << std::endl;
@@ -132,10 +132,10 @@ namespace Ubpa::detail::Reflection_ {
 		static Ret run(Reflection<Obj>& refl, const std::string& name, Obj&& obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
-				return target_mf->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mf->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
-				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mfc->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Call:" << std::endl
 				<< "\t" << "not found " << name << std::endl;
@@ -150,10 +150,10 @@ namespace Ubpa::detail::Reflection_ {
 		static Ret run(Reflection<Obj>& refl, const std::string& name, Obj& obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
-				return target_mf->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mf->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 			auto target_mfc = refl.n2mfc.find(name);
 			if(target_mfc != refl.n2mfc.end())
-				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mfc->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Call:" << std::endl
 				<< "\t" << "not found " << name << std::endl;
@@ -168,7 +168,7 @@ namespace Ubpa::detail::Reflection_ {
 		static Ret run(Reflection<Obj>& refl, const std::string& name, const Obj& obj, Args&&... args) {
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
-				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+				return target_mfc->second->template Call<Ret>(obj, std::forward<Args>(args)...);
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Call:" << std::endl
 				<< "\t" << "not found " << name << std::endl;

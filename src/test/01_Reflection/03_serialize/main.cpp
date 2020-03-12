@@ -18,33 +18,22 @@ struct Lipstick : Cosmetics { string name{ "mac" }; };
 struct Lipglaze : Cosmetics { float color{ 0.f }; };
 
 template<typename Obj>
-class MemVarSerialize : public RawPtrVisitor<MemVarSerialize<Obj>, MemVar<void* Obj::*>> {
-public:
-	using Base = RawPtrVisitor<MemVarSerialize<Obj>, MemVar<void* Obj::*>>;
-
-	MemVarSerialize() : obj{ nullptr } {
-		Base::template Regist<
-			MemVar<float Obj::*>,
+struct MemVarSerialize : RawPtrVisitor<MemVarSerialize<Obj>, MemVar<void* Obj::*>> {
+	MemVarSerialize() {
+		this->Regist<MemVar<float Obj::*>,
 			MemVar<int Obj::*>,
 			MemVar<string Obj::*>>();
 	}
 
 	template<typename T>
-	void ImplVisit(MemVar<T Obj::*>* memvar) {
-		cout << memvar->Of(*obj);
-	}
+	void ImplVisit(MemVar<T Obj::*>* memvar) { cout << memvar->Of(obj); }
+	void ImplVisit(MemVar<string Obj::*>* memvar) { cout << "\"" << memvar->Of(obj) << "\""; }
 
-	void ImplVisit(MemVar<string Obj::*>* memvar) {
-		cout << "\"" << memvar->Of(*obj) << "\"";
-	}
-
-	Obj* obj;
+	Obj* obj{ nullptr };
 };
 
 struct Serialize : RawPtrMultiVisitor<Serialize, Figure, Cosmetics> {
-	Serialize() {
-		Regist<Sphere, Square, Lipstick, Lipglaze>();
-	}
+	Serialize() { Regist<Sphere, Square, Lipstick, Lipglaze>(); }
 
 	template<typename T>
 	void ImplVisit(T* e) {
@@ -53,7 +42,7 @@ struct Serialize : RawPtrMultiVisitor<Serialize, Figure, Cosmetics> {
 		cout << "{" << endl;
 		cout << "\"type\": \"" << Reflection<T>::Instance().GetName() << "\"" << endl;
 		for (auto nv : Reflection<T>::Instance().Vars()) {
-			cout << nv.first << ": ";
+			cout << "\"" << nv.first << "\"" << ": ";
 			ms.Visit(nv.second);
 			cout << endl;
 		}

@@ -29,8 +29,14 @@ namespace Ubpa {
 		T& Of(Obj& obj) const noexcept {
 			return obj.*reinterpret_cast<T Obj::*>(Base::ptr);
 		}
+		T& Of(Obj* obj) const noexcept {
+			return obj->*reinterpret_cast<T Obj::*>(Base::ptr);
+		}
 		const T& Of(const Obj& obj) const noexcept {
 			return obj.*reinterpret_cast<T Obj::*>(Base::ptr);
+		}
+		const T& Of(const Obj* obj) const noexcept {
+			return obj->*reinterpret_cast<T Obj::*>(Base::ptr);
 		}
 
 	private:
