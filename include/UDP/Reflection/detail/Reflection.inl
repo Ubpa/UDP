@@ -1,5 +1,12 @@
 #pragma once
 
+#include <cassert>
+
+#ifndef NDEBUG
+#include <iostream>
+#endif // !NDEBUG
+
+
 namespace Ubpa {
 	template<typename Obj>
 	Reflection<Obj>& Reflection<Obj>::Instance() noexcept {
@@ -16,8 +23,17 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename U>
-	const MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) {
-		return (n2mv[name]).As<U>();
+	const MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) const noexcept {
+		auto target = n2mv.find(name);
+		if (target != n2mv.end())
+			return target->second.As<U>();
+		else {
+#ifndef NDEBUG
+			std::cerr << "WARNING::Reflection::Var:" << std::endl
+				<< "\t" << name << " is not registed" << std::endl;
+#endif // !NDEBUG
+			return static_cast<U Obj::*>(nullptr);
+		}
 	}
 
 	template<typename Obj>
@@ -37,6 +53,12 @@ namespace Ubpa::detail::Reflection_ {
 	struct Regist<Ret(Obj::*)(Args...)> {
 		using Func = Ret(Args...);
 		static void run(Reflection<Obj>& refl, Func Obj::* ptr, const std::string& name) {
+#ifndef NDEBUG
+			if (refl.n2mf.find(name) != refl.n2mf.end()) {
+				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+					<< "\t" << name << " is already registed" << std::endl;
+			}
+#endif // !NDEBUG
 			refl.n2mf[name] = MemFunc<Func Obj::*>{ ptr };
 		}
 	};
@@ -45,6 +67,12 @@ namespace Ubpa::detail::Reflection_ {
 	struct Regist<Ret(Obj::*)(Args...) const> {
 		using Func = Ret(Args...) const;
 		static void run(Reflection<Obj>& refl, Func Obj::* ptr, const std::string& name) {
+#ifndef NDEBUG
+			if (refl.n2mfc.find(name) != refl.n2mfc.end()) {
+				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+					<< "\t" << name << " is already registed" << std::endl;
+			}
+#endif // !NDEBUG
 			refl.n2mfc[name] = MemFunc<Func Obj::*>{ ptr };
 		}
 	};
@@ -52,6 +80,12 @@ namespace Ubpa::detail::Reflection_ {
 	template<typename Obj, typename T>
 	struct Regist<T Obj::*> {
 		static void run(Reflection<Obj>& refl, T Obj::* ptr, const std::string& name) {
+#ifndef NDEBUG
+			if (refl.n2mv.find(name) != refl.n2mv.end()) {
+				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+					<< "\t" << name << " is already registed" << std::endl;
+			}
+#endif // !NDEBUG
 			refl.n2mv[name] = MemVar<T Obj::*>{ ptr };
 		}
 	};
@@ -66,6 +100,10 @@ namespace Ubpa::detail::Reflection_ {
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
 				return target_mfc->second.template Call<Ret>(*obj, std::forward<Args>(args)...);
+#ifndef NDEBUG
+			std::cerr << "WARNING::Reflection::Call:" << std::endl
+				<< "\t" << "not found " << name << std::endl;
+#endif // !NDEBUG
 			if constexpr (std::is_constructible_v<Ret>)
 				return Ret{};
 		}
@@ -80,6 +118,10 @@ namespace Ubpa::detail::Reflection_ {
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
 				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+#ifndef NDEBUG
+			std::cerr << "WARNING::Reflection::Call:" << std::endl
+				<< "\t" << "not found " << name << std::endl;
+#endif // !NDEBUG
 			if constexpr (std::is_constructible_v<Ret>)
 				return Ret{};
 		}
@@ -94,7 +136,11 @@ namespace Ubpa::detail::Reflection_ {
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
 				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
-			if constexpr(std::is_constructible_v<Ret>)
+#ifndef NDEBUG
+			std::cerr << "WARNING::Reflection::Call:" << std::endl
+				<< "\t" << "not found " << name << std::endl;
+#endif // !NDEBUG
+			if constexpr (std::is_constructible_v<Ret>)
 				return Ret{};
 		}
 	};
@@ -108,6 +154,10 @@ namespace Ubpa::detail::Reflection_ {
 			auto target_mfc = refl.n2mfc.find(name);
 			if(target_mfc != refl.n2mfc.end())
 				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+#ifndef NDEBUG
+			std::cerr << "WARNING::Reflection::Call:" << std::endl
+				<< "\t" << "not found " << name << std::endl;
+#endif // !NDEBUG
 			if constexpr (std::is_constructible_v<Ret>)
 				return Ret{};
 		}
@@ -119,6 +169,10 @@ namespace Ubpa::detail::Reflection_ {
 			auto target_mfc = refl.n2mfc.find(name);
 			if (target_mfc != refl.n2mfc.end())
 				return target_mfc->second.template Call<Ret>(obj, std::forward<Args>(args)...);
+#ifndef NDEBUG
+			std::cerr << "WARNING::Reflection::Call:" << std::endl
+				<< "\t" << "not found " << name << std::endl;
+#endif // !NDEBUG
 			if constexpr (std::is_constructible_v<Ret>)
 				return Ret{};
 		}
