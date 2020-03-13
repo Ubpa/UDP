@@ -1,4 +1,5 @@
 #include <UDP/Reflection/Reflection.h>
+#include <UDP/Reflection/MemVarVisitor.h>
 #include <UDP/Visitor/MultiVisitor.h>
 
 #include "nameof.hpp"
@@ -18,27 +19,24 @@ struct Lipstick : Cosmetics { string name{ "mac" }; };
 struct Lipglaze : Cosmetics { float color{ 0.f }; };
 
 template<typename Obj>
-struct MemVarSerialize : RawPtrVisitor<MemVarSerialize<Obj>, MemVar<void* Obj::*>> {
-	MemVarSerialize() {
-		this->Regist<MemVar<float Obj::*>,
-			MemVar<int Obj::*>,
-			MemVar<string Obj::*>>();
+struct MemVarSerializer : MemVarVisitor<MemVarSerializer<Obj>, Obj> {
+	MemVarSerializer() {
+		this->Regist<float, int, string>();
 	}
 
 	template<typename T>
-	void ImplVisit(MemVar<T Obj::*>* memvar) { cout << memvar->Of(obj); }
-	void ImplVisit(MemVar<string Obj::*>* memvar) { cout << "\"" << memvar->Of(obj) << "\""; }
+	void ImplVisit(const T& var) { cout << var; }
 
-	Obj* obj{ nullptr };
+	virtual void ImplVisit(const string& var) { cout << "\"" << var << "\""; }
 };
 
-struct Serialize : RawPtrMultiVisitor<Serialize, Figure, Cosmetics> {
-	Serialize() { Regist<Sphere, Square, Lipstick, Lipglaze>(); }
+struct Serializer : RawPtrMultiVisitor<Serializer, Figure, Cosmetics> {
+	Serializer() { Regist<Sphere, Square, Lipstick, Lipglaze>(); }
 
 	template<typename T>
 	void ImplVisit(T* e) {
-		static MemVarSerialize<T> ms;
-		ms.obj = e;
+		static MemVarSerializer<T> ms;
+		ms.SetObj(e);
 		cout << "{" << endl;
 		cout << "\"type\": \"" << Reflection<T>::Instance().GetName() << "\"" << endl;
 		for (auto nv : Reflection<T>::Instance().Vars()) {
@@ -67,7 +65,7 @@ int main() {
 		.SetName(nameof::nameof_type<Lipglaze>().data())
 		.Regist(&Lipglaze::color, NAMEOF(&Lipglaze::color).data());
 
-	Serialize serialize;
+	Serializer serializer;
 	Sphere a;
 	Square b;
 	Figure* figures[2] = { &a,&b };
@@ -76,7 +74,7 @@ int main() {
 	Cosmetics* cosmetics[2] = { &c,&d };
 
 	for (auto f : figures)
-		serialize.Visit(f);
+		serializer.Visit(f);
 	for (auto c : cosmetics)
-		serialize.Visit(c);
+		serializer.Visit(c);
 }
