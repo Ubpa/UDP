@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../vtable.h"
+
 #include <utility>
 
 namespace Ubpa {
@@ -15,6 +17,7 @@ namespace Ubpa {
 
 		template<typename Ret, typename... Args>
 		Ret Call(Obj& obj, Args&&... args) const noexcept {
+			assert(vtable_is<MemFunc<Ret(Obj::*)(Args...)>>(this));
 			return (obj.*reinterpret_cast<Ret(Obj::*)(Args...)>(ptr))(std::forward<Args>(args)...);
 		}
 		template<typename PtrObj, typename Ret, typename... Args>
@@ -34,6 +37,7 @@ namespace Ubpa {
 
 		template<typename Ret, typename... Args>
 		Ret Call(const Obj& obj, Args&&... args) const noexcept {
+			assert(vtable_is<MemFunc<Ret(Obj::*)(Args...)const>>(this) && "Ret(Args...) isn't correct");
 			return (obj.*reinterpret_cast<Ret(Obj::*)(Args...) const>(ptr))(std::forward<Args>(args)...);
 		}
 
@@ -49,8 +53,8 @@ namespace Ubpa {
 	class MemFunc<Ret(Obj::*)(Args...)> : public MemFunc<void(Obj::*)(void*)> {
 	public:
 		using Base = MemFunc<void(Obj::*)(void*)>;
-		template<typename RetU, typename... ArgsU>
-		MemFunc(RetU(Obj::* ptr)(ArgsU...)) : Base(reinterpret_cast<void(Obj::*)(void*)>(ptr)) {}
+		using Func = Ret(Args...);
+		MemFunc(Func Obj::* ptr = nullptr) : Base(reinterpret_cast<void(Obj::*)(void*)>(ptr)) {}
 
 		Ret Call(Obj& obj, Args&&... args) const noexcept {
 			return Base::template Call<Ret, Args...>(obj, std::forward<Args>(args)...);
@@ -63,8 +67,8 @@ namespace Ubpa {
 	class MemFunc<Ret(Obj::*)(Args...) const> : public MemFunc<void(Obj::*)(void*) const> {
 	public:
 		using Base = MemFunc<void(Obj::*)(void*) const>;
-		template<typename RetU, typename... ArgsU>
-		MemFunc(RetU(Obj::* ptr)(ArgsU...) const) : Base(reinterpret_cast<void(Obj::*)(void*) const>(ptr)) {}
+		using Func = Ret(Args...) const;
+		MemFunc(Func Obj::* ptr = nullptr) : Base(reinterpret_cast<void(Obj::*)(void*) const>(ptr)) {}
 
 		Ret Call(const Obj& obj, Args&&... args) const noexcept {
 			return Base::template Call<Ret, Args...>(obj, std::forward<Args>(args)...);

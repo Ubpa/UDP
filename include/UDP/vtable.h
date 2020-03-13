@@ -8,7 +8,7 @@ namespace Ubpa {
 	inline static const void* vtable(T* ptr) noexcept {
 		static_assert(std::is_polymorphic_v<T>);
 		assert(ptr != nullptr);
-		return *reinterpret_cast<void**>(ptr);
+		return *reinterpret_cast<const void * const *>(ptr);
 	}
 
 	template<typename Ptr>
