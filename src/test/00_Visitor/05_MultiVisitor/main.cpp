@@ -11,7 +11,7 @@ struct B : A {};
 struct C : A {};
 
 struct D {
-	D(A* a) : a(a) {}
+	D(A* a = nullptr) : a(a) {}
 	virtual ~D() = default;
 	A* a;
 };
