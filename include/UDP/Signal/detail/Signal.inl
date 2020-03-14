@@ -28,9 +28,14 @@ namespace Ubpa {
 namespace Ubpa::detail::Signal_ {
 	// ref: qobjectdefs_impl.h
 
+	template <typename T> struct RmvLValueRef : IType<T> {};
+	template <typename T> struct RmvLValueRef<T&> : IType<T> {};
+	template <typename T> struct RmvConstRef : IType<T> {};
+	template <typename T> struct RmvConstRef<const T&> : IType<T> {};
+
 	template<typename A1, typename A2>
 	struct AreArgumentsCompatible
-		: std::is_same<const std::remove_reference<A1>&, const std::remove_reference<A2>&> {};
+		: std::is_same<const typename RmvLValueRef<A1>::type&, const typename RmvLValueRef<A2>::type&> {};
 	template<typename A1, typename A2> struct AreArgumentsCompatible<A1, A2&>
 		: std::false_type {};
 	template<typename A> struct AreArgumentsCompatible<A&, A&>
@@ -64,7 +69,8 @@ namespace Ubpa::detail::Signal_ {
 	template<typename SignalArgHead, typename SlotArgHead, typename... SignalArgTail, typename... SlotArgTail>
 	struct CheckCompatibleArguments<TypeList<SignalArgHead, SignalArgTail...>, TypeList<SlotArgHead, SlotArgTail...>> {
 		static constexpr bool value =
-			AreArgumentsCompatible<std::decay_t<SignalArgHead>, std::decay_t<SlotArgHead>>::value
+			AreArgumentsCompatible<typename RmvConstRef<SignalArgHead>::type,
+				typename RmvConstRef<SlotArgHead>::type>::value
 			&& CheckCompatibleArguments<TypeList<SignalArgTail...>, TypeList<SlotArgTail...>>::value;
 	};
 
@@ -78,10 +84,9 @@ namespace Ubpa::detail::Signal_ {
 			using SignalArgList = TypeList<SignalArgs...>;
 			sig.slots[sig.id] = [slot = std::forward<Slot>(slot)](SignalArgs... signalArgs) {
 				std::tuple<SignalArgs...> argTuple{ signalArgs... };
-				if constexpr (detail::Signal_::CheckCompatibleArguments<SignalArgList, SlotArgList>::value)
-					slot(std::get<Find_v<SlotArgList, SlotArgs>>(argTuple)...);
-				else
-					slot(std::get<SlotArgs>(argTuple)...);
+				static_assert(detail::Signal_::CheckCompatibleArguments<SignalArgList, SlotArgList>::value,
+					"Signal and slot arguments are not compatible.");
+				slot(std::get<Find_v<SlotArgList, SlotArgs>>(argTuple)...);
 			};
 		}
 	};
