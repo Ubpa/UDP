@@ -12,7 +12,7 @@ namespace Ubpa::detail::Signal_ {
 namespace Ubpa {
 	template<typename... Args>
 	template<typename Slot>
-	size_t Signal<Args...>::Connect(Slot&& slot) {
+	Connection Signal<Args...>::Connect(Slot&& slot) {
 		using SlotArgList = typename FuncTraits<Slot>::ArgList;
 		slots[id] = detail::Signal_::SlotFit<SlotArgList>::run(std::forward<Slot>(slot), TypeList<Args...>{});
 		return id++;
@@ -22,6 +22,12 @@ namespace Ubpa {
 	void Signal<Args...>::Emit(Args... args) const {
 		for (auto p : slots)
 			p.second(args...);
+	}
+
+	template<typename... Args>
+	void Signal<Args...>::Disconnect(Connection&& connection) {
+		slots.erase(connection.id);
+		connection.id = static_cast<size_t>(-1);
 	}
 }
 

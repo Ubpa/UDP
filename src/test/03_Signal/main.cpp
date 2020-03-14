@@ -13,7 +13,7 @@ int main() {
 	int a = 2;
 	s0.Emit(1.f, a, 3);
 	cout << a << endl;
-	s0.Disconnect(connection);
+	s0.Disconnect(std::move(connection));
 	a = 4;
 	s0.Emit(1.f, a, 3);
 	cout << a << endl;
