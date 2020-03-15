@@ -53,7 +53,7 @@ namespace Ubpa {
 	void Visitor<Impl, AddPointer, PointerCaster, Base>::Visit(BasePointer&& ptrBase) const noexcept {
 		auto target = callbacks.find(vtable(ptrBase));
 		if (target != callbacks.end())
-			target->second(std::move(ptrBase));
+			target->second(std::forward<BasePointer>(ptrBase));
 #ifndef NDEBUG
 		else {
 			std::cout << "WARNING::" << typeid(Impl).name() << "::Visit:" << std::endl
