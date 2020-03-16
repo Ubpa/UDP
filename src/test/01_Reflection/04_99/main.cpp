@@ -1,45 +1,46 @@
 #include <map>
 #include <string>
 #include <iostream>
-
 using namespace std;
 
 template<typename Obj_T> struct MemVar;
 
 template<typename Obj>
-struct MemVar<void* Obj::*> {
-    MemVar(void* Obj::* ptr = nullptr) : ptr(ptr) {}
-    virtual ~MemVar() = default;
-
+struct MemVarBase {
+    void* Obj::* var;
+    MemVarBase(void* Obj::* var = nullptr) : var{ var } {}
+    virtual ~MemVarBase() = default;
     template<typename U>
     const MemVar<U Obj::*> As() const {
-        return reinterpret_cast<U Obj::*>(ptr);
+        return reinterpret_cast<U Obj::*>(var);
     }
-    
-    void* Obj::* ptr;
 };
 
 template<typename Obj, typename T>
-struct MemVar<T Obj::*> : MemVar<void* Obj::*> {
-    MemVar(T Obj::* ptr)
-        : MemVar<void* Obj::*>{reinterpret_cast<void* Obj::*>(ptr)} {}
-
+struct MemVar<T Obj::*> : MemVarBase<Obj> {
+    MemVar(T Obj::* var)
+        : MemVarBase<Obj>{reinterpret_cast<void* Obj::*>(var)} {}
     T& Of(Obj& obj) const {
-        return obj.*reinterpret_cast<T Obj::*>(this->ptr);
+        return obj.*reinterpret_cast<T Obj::*>(this->var);
     }
 };
 
-struct MemFunc {
-    struct Nil{};
-    MemFunc(void(Nil::*func)(void*) = nullptr) : func(func) {}
-
-    template<typename Ret, typename Obj, typename... Args>
+template<typename Obj>
+struct MemFuncBase {
+    void(Obj::* func)();
+    MemFuncBase(void(Obj::*func)() = nullptr) : func(func) {}
+    template<typename Ret, typename... Args>
     Ret Call(Obj& obj, Args&&... args) const {
         return (obj.*reinterpret_cast<Ret(Obj::*)(Args...)>(func))
             (forward<Args>(args)...);
     }
-    
-    void(Nil::*func)(void*);
+};
+
+template<typename Func> struct MemFunc;
+template<typename Obj, typename Ret, typename... Args>
+struct MemFunc<Ret(Obj::*)(Args...)> : MemFuncBase<Obj> {
+    MemFunc(Ret(Obj::*func)(Args...) = nullptr)
+        : MemFuncBase<Obj>{ reinterpret_cast<void(Obj::*)()>(func) } {}
 };
 
 template<typename Obj>
@@ -57,25 +58,25 @@ struct Reflection {
     
     template<typename Ret, typename... Args>
     Reflection& Regist(Ret(Obj::*func)(Args...), const string& name) {
-        n2mf[name] = reinterpret_cast<void(MemFunc::Nil::*)(void*)>(func);
+        n2mf[name] = new MemFunc<Ret(Obj::*)(Args...)>(func);
         return *this;
     }
     
-    template<typename T = void*>
+    template<typename T>
     const MemVar<T Obj::*> Var(const string& name) {
         return n2mv[name]->template As<T>();
     }
     
-    const map<string, MemVar<void* Obj::*>*> Vars() const { return n2mv; }
+    const map<string, MemVarBase<Obj>*> Vars() const { return n2mv; }
     
     template<typename Ret = void, typename... Args>
-    Ret Call(const string& name, Obj& obj, Args... args){
-        return n2mf[name].template Call<Ret>(obj, std::forward<Args>(args)...);
+    Ret Call(const string& name, Obj& obj, Args&&... args){
+        return n2mf[name]->template Call<Ret>(obj, forward<Args>(args)...);
     }
     
 private:
-    map<string, MemVar<void* Obj::*>*> n2mv;
-    map<string, MemFunc> n2mf;
+    map<string, MemVarBase<Obj>*> n2mv;
+    map<string, MemFuncBase<Obj>*> n2mf;
     Reflection() = default;
 };
 
@@ -89,7 +90,6 @@ int main() {
         .Regist(&Point::x, "x")
         .Regist(&Point::y, "y")
         .Regist(&Point::Add, "Add");
-    
     Point p;
     Reflection<Point>::Instance().Var<float>("x").Of(p) = 2.f;
     Reflection<Point>::Instance().Var<float>("y").Of(p) = 3.f;
