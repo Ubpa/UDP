@@ -6,15 +6,9 @@ using namespace Ubpa;
 using namespace std;
 
 int main() {
-	Signal<float, int&, int> s0;
-	auto connection = s0.Connect([](float, int& n) {
-		n = 3;
+	Signal<int, int> mouseMoved;
+	auto connection = mouseMoved.Connect([](int x, int y) {
+		cout << x << ", " << y << endl;
 		});
-	int a = 2;
-	s0.Emit(1.f, a, 3);
-	cout << a << endl;
-	s0.Disconnect(std::move(connection));
-	a = 4;
-	s0.Emit(1.f, a, 3);
-	cout << a << endl;
+	mouseMoved.Emit(3, 4);
 }
