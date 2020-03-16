@@ -8,15 +8,15 @@
 
 namespace Ubpa {
 	template<typename Impl, typename Obj>
-	struct MemVarVisitor : RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVar<void* Obj::*>> {
+	struct MemVarVisitor : RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVarBase<Obj>> {
 		template<typename... Ts>
 		inline void Regist() noexcept {
-			RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVar<void* Obj::*>>::template Regist<MemVar<Ts Obj::*>...>();
+			RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVarBase<Obj>>::template Regist<MemVar<Ts Obj::*>...>();
 		}
 
 		template<typename... Funcs>
 		inline void Regist(Funcs&&... func) noexcept {
-			RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVar<void* Obj::*>>::template Regist<Funcs...>(std::forward<Funcs>(func)...);
+			RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVarBase<Obj>>::template Regist<Funcs...>(std::forward<Funcs>(func)...);
 		}
 
 		template<typename T>
