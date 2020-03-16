@@ -9,7 +9,7 @@ namespace Ubpa {
 	template<typename Slot>
 	Connection Signal<Args...>::Connect(Slot&& slot) {
 		using SlotArgList = typename FuncTraits<Slot>::ArgList;
-		slots[id] = FuncExpand<Args...>::template run(std::forward<Slot>(slot));
+		slots[id] = FuncExpand<void(Args...)>::template run(std::forward<Slot>(slot));
 		return id++;
 	}
 
