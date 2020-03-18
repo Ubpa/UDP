@@ -50,6 +50,25 @@ namespace Ubpa {
 	}
 
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>
+	void MultiVisitor<Impl, AddPointer, PointerCaster, Bases...>::Visit(void* ptr) const noexcept {
+		(VisitOne<Bases>(ptr) || ...);
+	}
+
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>
+	template<typename Base>
+	bool MultiVisitor<Impl, AddPointer, PointerCaster, Bases...>::VisitOne(void* ptr) const {
+		const void* vt = vtable(ptr);
+		auto target = VisitorOf<Base>::callbacks.find(vt);
+		if (target != VisitorOf<Base>::callbacks.end()) {
+			size_t offset = VisitorOf<Base>::offsets.find(vt)->second;
+			Base* ptr_base = reinterpret_cast<Base*>(reinterpret_cast<size_t>(ptr) + offset);
+			target->second(ptr_base);
+			return true;
+		}
+		return false;
+	}
+
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>
 	template<typename Func>
 	void MultiVisitor<Impl, AddPointer, PointerCaster, Bases...>::RegistOne(Func&& func) noexcept {
 		using DerivedPointer = Front_t<typename FuncTraits<Func>::ArgList>;

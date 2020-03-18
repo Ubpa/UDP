@@ -1,1 +1,1 @@
-Ubpa_AddTarget(MODE "HEAD" SOURCES "include" LIBS Ubpa::UTemplate_core)
+Ubpa_AddTarget(MODE "HEAD" INTERFACE_INC ON LIBS Ubpa::UTemplate_core)

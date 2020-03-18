@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # 设定项目
-project(UDP VERSION 0.1)
+project(UDP VERSION 0.1.1)
 message(STATUS "[Project] ${PROJECT_NAME}")
 
 # 在 Debug 模式下自动对 dll 和 lib 文件名后边加 d，但 exe 仍然需要手动设置
@@ -32,18 +32,19 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include(FetchContent)
 
-find_package(UCMake 0.1 EXACT QUIET)
+find_package(UCMake 0.2.0 QUIET)
 if(${UCMake_FOUND})
-	message(STATUS "UCMake-0.1 found")
+	message(STATUS "UCMake-0.2.0 found")
 else()
-	message(STATUS "UCMake-0.1 not found, so fetch it ...")
+	message(STATUS "UCMake-0.2.0 not found, so fetch it ...")
 	FetchContent_Declare(
 	  UCMake
 	  GIT_REPOSITORY https://github.com/Ubpa/UCMake
-	  GIT_TAG "v0.1"
+	  GIT_TAG "v0.2.0"
 	)
+	message(STATUS "UCMake-0.2.0 fetch done, building")
 	FetchContent_MakeAvailable(UCMake)
-	message(STATUS "${dep}-${version} fetch done")
+	message(STATUS "UCMake-0.2.0 build done")
 endif()
 
 # 修改默认的安装路径前缀

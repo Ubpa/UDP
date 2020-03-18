@@ -18,6 +18,7 @@ namespace Ubpa {
 		// dynamic double dispatch
 		template<typename DerivedPtr>
 		inline void Visit(DerivedPtr&& ptr_derived) const noexcept;
+		inline void Visit(void* ptr) const noexcept;
 
 		// for Derived without default constructor
 		template<typename DerivedPtr>
@@ -35,6 +36,8 @@ namespace Ubpa {
 		inline void RegistOne(Func&& func) noexcept;
 		template<typename Derived>
 		inline void RegistOne() noexcept;
+		template<typename Base>
+		bool VisitOne(void* ptr) const;
 
 		template<typename Base>
 		using VisitorOf = Visitor<Impl, AddPointer, PointerCaster, Base>;
