@@ -1,0 +1,1 @@
+Ubpa_AddTarget(MODE "EXE" TEST ON LIBS Ubpa::UDP_core)

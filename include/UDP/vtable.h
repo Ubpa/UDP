@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cassert>
 #include <type_traits>
+
+#include <cassert>
 
 namespace Ubpa {
 	template<typename T>
@@ -26,27 +27,13 @@ namespace Ubpa {
 	struct vtable_of {
 		static_assert(std::is_polymorphic_v<T>);
 
-		inline static void regist(T* ptr) noexcept {
-			value = vtable(ptr);
-		}
+		inline static void regist(T* ptr) noexcept { value = vtable(ptr); }
 
 		template<typename Ptr>
-		inline static void regist(Ptr&& ptr) noexcept {
-			regist(&(*ptr));
-		}
+		inline static void regist(Ptr&& ptr) noexcept { regist(&(*ptr)); }
 
-		inline static const void* get() noexcept {
-			if(!value) {
-				if constexpr (std::is_constructible_v<T>) {
-					T tmp{};
-					regist(&tmp);
-				}
-				else
-					assert(false);
-			}
-			return value;
-		}
-
+		inline static const void* get() noexcept;
+		
 	private:
 		inline static const void* value{ nullptr };
 		vtable_of() = default;
@@ -61,3 +48,5 @@ namespace Ubpa {
 		return vtable(ptr) == vtable_of<Derived>::get();
 	}
 }
+
+#include "detail/vtable.inl"
