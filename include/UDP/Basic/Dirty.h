@@ -13,15 +13,15 @@ namespace Ubpa {
 
 		void SetDirty() { dirty = true; }
 
-		const T& Get() const {
+		const T& Get() const noexcept {
 			if (dirty) {
-				dirty = false;
 				update(val);
+				dirty = false;
 			}
 			return val;
 		}
 
-		operator T() const { return Get(); }
+		operator T() const noexcept { return Get(); }
 
 	private:
 		const std::function<void(T & val)> update;

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # 设定项目
-project(UDP VERSION 0.2.2)
+project(UDP VERSION 0.2.3)
 message(STATUS "[Project] ${PROJECT_NAME}")
 
 # 在 Debug 模式下自动对 dll 和 lib 文件名后边加 d，但 exe 仍然需要手动设置
@@ -11,7 +11,7 @@ set(CMAKE_DEBUG_POSTFIX d)
 # 确定 C++ 版本
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
- 
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /permissive-")
 endif()
