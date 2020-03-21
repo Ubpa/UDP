@@ -6,6 +6,7 @@
 #include <iostream>
 #endif // !NDEBUG
 
+#include "../../Basic/Read.h"
 
 namespace Ubpa {
 	template<typename Obj>
@@ -87,6 +88,19 @@ namespace Ubpa::detail::Reflection_ {
 			}
 #endif // !NDEBUG
 			refl.n2mv[name] = new MemVar<T Obj::*>{ ptr };
+		}
+	};
+
+	template<typename Obj, typename T>
+	struct Regist<Read<Obj, T> Obj::*> {
+		static void run(Reflection<Obj>& refl, Read<Obj, T> Obj::* ptr, const std::string& name) {
+#ifndef NDEBUG
+			if (refl.n2mv.find(name) != refl.n2mv.end()) {
+				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+					<< "\t" << name << " is already registed" << std::endl;
+			}
+#endif // !NDEBUG
+			refl.n2mv[name] = new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) };
 		}
 	};
 

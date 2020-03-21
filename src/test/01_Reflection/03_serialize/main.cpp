@@ -4,28 +4,50 @@
 
 #include <string>
 #include <iostream>
+#include <array>
 
 using namespace std;
 using namespace Ubpa;
 
 struct Figure { virtual ~Figure() = default; };
-struct Sphere : Figure { int radius{ 0 }; };
-struct Square : Figure { float sideLength{ 0.f }; };
+struct Sphere : Figure { int radius{ 1 }; };
+struct Square : Figure { float sideLength{ 2.f }; };
 
 struct Cosmetics { virtual ~Cosmetics() = default; };
 struct Lipstick : Cosmetics { string name{ "mac" }; };
-struct Lipglaze : Cosmetics { float color{ 0.f }; };
+struct Lipglaze : Cosmetics { std::array<float, 3> color{ 0.9f,0.1f,0.1f }; };
 
-template<typename Obj>
-struct MemVarSerializer : MemVarVisitor<MemVarSerializer<Obj>, Obj> {
-	MemVarSerializer() {
-		this->Regist<float, int, string>();
+template<typename T>
+ostream& operator<<(ostream& os, const std::shared_ptr<VarPtr<T>>& p) {
+	os << p->get();
+	return os;
+}
+
+ostream& operator<<(ostream& os, const std::shared_ptr<VarPtr<string>>& p) {
+	os << "\"" << p->get() << "\"";
+	return os;
+}
+
+template<typename T, size_t N>
+ostream& operator<<(ostream& os, const std::shared_ptr<VarPtr<array<T, N>>>& p) {
+	for (auto var : p->get())
+		os << var << ", ";
+	return os;
+}
+
+struct VarSerializer : SharedPtrMultiVisitor<VarSerializer, VarPtrBase> {
+	VarSerializer() {
+		this->Regist<
+			VarPtr<float>,
+			VarPtr<int>,
+			VarPtr<string>,
+			VarPtr<array<float, 3>>>();
 	}
 
 	template<typename T>
-	void ImplVisit(const T& var) { cout << var; }
+	void ImplVisit(std::shared_ptr<VarPtr<T>> p) { cout << p; }
 
-	virtual void ImplVisit(const string& var) { cout << "\"" << var << "\""; }
+	//virtual void ImplVisit(std::shared_ptr<VarPtr<string>> p) { cout << "\"" << p->get() << "\""; }
 };
 
 struct Serializer : RawPtrMultiVisitor<Serializer, Figure, Cosmetics> {
@@ -33,17 +55,17 @@ struct Serializer : RawPtrMultiVisitor<Serializer, Figure, Cosmetics> {
 
 	template<typename T>
 	void ImplVisit(T* e) {
-		static MemVarSerializer<T> ms;
-		ms.SetObj(e);
 		cout << "{" << endl;
 		cout << "\"type\": \"" << Reflection<T>::Instance().GetName() << "\"" << endl;
 		for (auto nv : Reflection<T>::Instance().Vars()) {
 			cout << "\"" << nv.first << "\"" << ": ";
-			ms.Visit(nv.second);
+			vs.Visit(nv.second->PtrOf(e));
 			cout << endl;
 		}
 		cout << "}" << endl;
 	}
+
+	VarSerializer vs;
 };
 
 int main() {
