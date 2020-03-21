@@ -20,12 +20,12 @@ struct F : D { using D::D; };
 
 class AD_Visitor : public RawPtrMultiVisitor<AD_Visitor, A, D> {
 public:
-	AD_Visitor() { Regist<A, B, C, D, E, F>(); }
+	AD_Visitor() { Regist<A, /*B, C, */D, E, F>(); }
 
 protected:
 	void ImplVisit(A*) { cout << "Obj::ImplVisit(A*)" << endl; }
-	void ImplVisit(B*) { cout << "Obj::ImplVisit(B*)" << endl; }
-	void ImplVisit(C*) { cout << "Obj::ImplVisit(C*)" << endl; }
+	//void ImplVisit(B*) { cout << "Obj::ImplVisit(B*)" << endl; }
+	//void ImplVisit(C*) { cout << "Obj::ImplVisit(C*)" << endl; }
 	void ImplVisit(D* d) { cout << "Obj::ImplVisit(D*), "; Visit(d->a); }
 	void ImplVisit(E* e) { cout << "Obj::ImplVisit(E*), "; Visit(e->a); }
 	void ImplVisit(F* f) { cout << "Obj::ImplVisit(F*), "; Visit(f->a); }

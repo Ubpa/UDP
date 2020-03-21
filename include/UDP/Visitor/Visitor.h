@@ -26,9 +26,13 @@ namespace Ubpa {
 		// check it in Regist
 		// static_assert(std::is_polymorphic_v<Base>);
 		using BasePointer = AddPointer<Base>;
+		using CBasePointer = AddPointer<const Base>;
 	public:
 		// dynamic double dispatch
 		inline void Visit(void* ptr) const noexcept;
+		inline void Visit(const void* ptr) const noexcept;
+		inline void Visit(CBasePointer& ptrCBase) const noexcept;
+		inline void Visit(CBasePointer&& ptrCBase) const noexcept;
 		inline void Visit(BasePointer& ptrBase) const noexcept;
 		inline void Visit(BasePointer&& ptrBase) const noexcept;
 
@@ -48,6 +52,8 @@ namespace Ubpa {
 		// - argument : AddPointer<Deriveds>
 		template<typename... Deriveds>
 		inline void Regist() noexcept;
+		template<typename... Deriveds>
+		inline void RegistC() noexcept;
 
 	private:
 		template<typename Func>
@@ -55,7 +61,11 @@ namespace Ubpa {
 		template<typename Derived>
 		inline void RegistOne() noexcept;
 		template<typename Derived>
+		inline void RegistOneC() noexcept;
+		template<typename Derived>
 		inline void RegistOne(Impl* impl) noexcept; // for MultiVisitor
+		template<typename Derived>
+		inline void RegistOneC(Impl* impl) noexcept; // for MultiVisitor
 
 		template<typename Base, typename Derived>
 		static size_t offset() noexcept {
@@ -65,6 +75,7 @@ namespace Ubpa {
 	private:
 		// vtable to callbacks
 		std::unordered_map<const void*, std::function<void(BasePointer)>> callbacks;
+		std::unordered_map<const void*, std::function<void(CBasePointer)>> const_callbacks;
 		std::unordered_map<const void*, size_t> offsets;
 
 	private:
