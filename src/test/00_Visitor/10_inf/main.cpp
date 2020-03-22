@@ -1,4 +1,4 @@
-#include <UDP/Visitor/MultiVisitor.h>
+#include <UDP/Visitor/InfVisitor.h>
 
 #include <iostream>
 #include <memory>
@@ -18,7 +18,7 @@ struct D {
 struct E : D { using D::D; };
 struct F : D { using D::D; };
 
-class AD_Visitor : public RawPtrMultiVisitor<AD_Visitor, A, D> {
+class AD_Visitor : public InfVisitor<AD_Visitor> {
 public:
 	AD_Visitor() {
 		RegistC<A, B, D, E>();

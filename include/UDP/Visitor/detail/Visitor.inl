@@ -179,11 +179,10 @@ namespace Ubpa {
 
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
 	template<typename... Funcs>
-	void Visitor<Impl, AddPointer, PointerCaster, Base>::Regist(Funcs&&... func) noexcept {
+	void Visitor<Impl, AddPointer, PointerCaster, Base>::Regist(Funcs&&... funcs) noexcept {
 		static_assert(std::is_polymorphic_v<Base>);
-		//static_assert(std::is_final_v<Impl>);
 		static_assert(IsSet_v<TypeList<detail::Visitor_::RemovePtr<Front_t<typename FuncTraits<Funcs>::ArgList>>...>>);
-		(RegistOne<Funcs>(std::forward<Funcs>(func)), ...);
+		(RegistOne<Funcs>(std::forward<Funcs>(funcs)), ...);
 	}
 
 	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>

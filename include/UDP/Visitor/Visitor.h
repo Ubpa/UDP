@@ -38,7 +38,7 @@ namespace Ubpa {
 
 		// regist : lambda function, callable object, raw function (pointer)
 		template<typename... Funcs>
-		inline void Regist(Funcs&&... func) noexcept;
+		inline void Regist(Funcs&&... funcs) noexcept;
 
 		// for Derived without default constructor
 		template<typename DerivedPtr>
