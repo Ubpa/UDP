@@ -20,7 +20,7 @@ namespace Ubpa {
 				regist(&tmp.t);
 			}
 			else
-				assert(false);
+				return nullptr;
 		}
 		return value;
 	}

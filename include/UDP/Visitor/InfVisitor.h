@@ -19,6 +19,11 @@ namespace Ubpa {
 		template<typename... Funcs>
 		void Regist(Funcs&&... funcs);
 
+		template<typename T>
+		bool IsRegisted();
+		bool IsRegisted(void* ptr);
+		bool IsRegisted(const void* ptr);
+
 	protected:
 		template<typename... Deriveds>
 		void Regist();

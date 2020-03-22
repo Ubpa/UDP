@@ -169,4 +169,31 @@ namespace Ubpa {
 			};
 		}
 	}
+
+	template<typename Impl>
+	template<typename T>
+	bool InfVisitor<Impl>::IsRegisted() {
+		if constexpr (!std::is_polymorphic_v<T>)
+			return false;
+		else {
+			const void* p = vtable_of<T>::get();
+			return p != nullptr && (
+				callbacks.find(p) != callbacks.end()
+				|| const_callbacks.find(p) != const_callbacks.end());
+		}
+	}
+
+	template<typename Impl>
+	bool InfVisitor<Impl>::IsRegisted(void* ptr) {
+		const void* p = vtable(ptr);
+		return p != nullptr && (
+			callbacks.find(p) != callbacks.end()
+			|| const_callbacks.find(p) != const_callbacks.end());
+	}
+
+	template<typename Impl>
+	bool InfVisitor<Impl>::IsRegisted(const void* ptr) {
+		const void* p = vtable(ptr);
+		return p != nullptr && const_callbacks.find(p) != const_callbacks.end();
+	}
 }

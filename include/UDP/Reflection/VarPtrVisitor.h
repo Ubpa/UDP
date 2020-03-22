@@ -12,10 +12,10 @@ namespace Ubpa {
 
 	protected:
 		template<typename... Ts>
-		inline void Regist() noexcept;
+		inline void Regist() noexcept; // ImplVisit(Ts&)
 
 		template<typename... Ts>
-		inline void RegistC() noexcept;
+		inline void RegistC() noexcept; // ImplVisit(const Ts&)
 
 	// ================================================================================
 
