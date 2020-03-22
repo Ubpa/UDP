@@ -68,7 +68,5 @@ namespace Ubpa {
 			return reinterpret_cast<T Obj::*>(MemVarBase<Obj>::var);
 		}
 		using MemVarBase<Obj>::As;
-
-		VarPtr<T> pvar;
 	};
 }

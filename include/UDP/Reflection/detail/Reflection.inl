@@ -43,6 +43,22 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
+	inline const std::map<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(Obj& obj) const noexcept {
+		std::map<std::string, std::shared_ptr<VarPtrBase>> rst;
+		for (const auto& [n, mv] : n2mv)
+			rst[n] = mv->PtrOf(obj);
+		return rst;
+	}
+
+	template<typename Obj>
+	inline const std::map<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const Obj& obj) const noexcept {
+		std::map<std::string, std::shared_ptr<const VarPtrBase>> rst;
+		for (const auto& [n, mv] : n2mv)
+			rst[n] = mv->PtrOf(obj);
+		return rst;
+	}
+
+	template<typename Obj>
 	template<typename Ret, typename RObj, typename... Args>
 	Ret Reflection<Obj>::Call(const std::string& name, RObj&& obj, Args&&... args) {
 		return detail::Reflection_::Call<Obj, RObj, Ret, Args...>::run(*this, name, std::forward<RObj>(obj), std::forward<Args>(args)...);

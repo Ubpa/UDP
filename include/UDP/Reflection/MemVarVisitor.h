@@ -3,9 +3,6 @@
 #include "MemVar.h"
 #include "../Visitor/Visitor.h"
 
-#include <iostream>
-#include <string>
-
 namespace Ubpa {
 	template<typename Impl, typename Obj>
 	struct MemVarVisitor : RawPtrVisitor<MemVarVisitor<Impl, Obj>, MemVarBase<Obj>> {
