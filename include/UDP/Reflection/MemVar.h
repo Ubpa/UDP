@@ -21,8 +21,8 @@ namespace Ubpa {
 
 		virtual std::shared_ptr<VarPtrBase> PtrOf(Obj& obj) = 0;
 		virtual std::shared_ptr<VarPtrBase> PtrOf(Obj* obj) = 0;
-		virtual std::shared_ptr<VarPtrBase> PtrOf(const Obj& obj) = 0;
-		virtual std::shared_ptr<VarPtrBase> PtrOf(const Obj* obj) = 0;
+		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj& obj) = 0;
+		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj* obj) = 0;
 
 	protected:
 		void* Obj::* var;
@@ -55,12 +55,12 @@ namespace Ubpa {
 			return std::make_shared<VarPtr<T>>(&Of(obj));
 		}
 
-		virtual std::shared_ptr<VarPtrBase> PtrOf(const Obj& obj) override {
-			return std::make_shared<VarPtr<const T>>(&Of(obj));
+		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj& obj) override {
+			return std::make_shared<const VarPtr<T>>(const_cast<T*>(&Of(obj)));
 		}
 
-		virtual std::shared_ptr<VarPtrBase> PtrOf(const Obj* obj) override {
-			return std::make_shared<VarPtr<const T>>(&Of(obj));
+		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj* obj) override {
+			return std::make_shared<const VarPtr<T>>(const_cast<T*>(&Of(obj)));
 		}
 
 	private:

@@ -16,6 +16,30 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
+	Reflection<Obj>& Reflection<Obj>::SetName(const std::string& name) noexcept {
+		this->name = name;
+		if constexpr (std::is_constructible_v<Obj>)
+			ReflectionMngr::Instance().RegistConstructor(name, []() -> void* {return new Obj; });
+		else if constexpr(is_derived_constructible_v<Obj>)
+			ReflectionMngr::Instance().RegistConstructor(name, []() -> void* {
+				detail::vtable_::Derived<Obj> derived;
+				auto buffer = std::malloc(sizeof(Obj));
+				if constexpr (std::is_move_constructible_v<Obj>)
+					*reinterpret_cast<Obj*>(buffer) = std::move(derived.t);
+				else
+					std::memcpy(buffer, &derived.t, sizeof(Obj));
+				return buffer;
+			});
+		else {
+#ifndef NDEBUG
+			std::cout << "WARNING::Reflection<" << name << ">::SetName:" << std::endl
+				<< "\t" << "you should regist constructor by yourself" << std::endl;
+#endif // !NDEBUG
+		}
+		return *this;
+	}
+
+	template<typename Obj>
 	template<typename T>
 	Reflection<Obj>& Reflection<Obj>::Regist(T Obj::* ptr, const std::string& name) noexcept {
 		detail::Reflection_::Regist<T Obj::*>::run(*this, ptr, name);
@@ -24,7 +48,7 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename U>
-	const MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) const noexcept {
+	MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) const noexcept {
 		auto target = n2mv.find(name);
 		if (target != n2mv.end())
 			return target->second->As<U>();
@@ -38,12 +62,12 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	const std::map<std::string, MemVarBase<Obj>*> Reflection<Obj>::Vars() const noexcept {
+	std::map<std::string, MemVarBase<Obj>*> Reflection<Obj>::Vars() const noexcept {
 		return n2mv;
 	}
 
 	template<typename Obj>
-	inline const std::map<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(Obj& obj) const noexcept {
+	std::map<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(Obj& obj) const noexcept {
 		std::map<std::string, std::shared_ptr<VarPtrBase>> rst;
 		for (const auto& [n, mv] : n2mv)
 			rst[n] = mv->PtrOf(obj);
@@ -51,11 +75,21 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	inline const std::map<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const Obj& obj) const noexcept {
+	std::map<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const Obj& obj) const noexcept {
 		std::map<std::string, std::shared_ptr<const VarPtrBase>> rst;
 		for (const auto& [n, mv] : n2mv)
 			rst[n] = mv->PtrOf(obj);
 		return rst;
+	}
+
+	template<typename Obj>
+	std::map<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(void* obj) const {
+		return VarPtrs(*reinterpret_cast<Obj*>(obj));
+	}
+
+	template<typename Obj>
+	std::map<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const void* obj) const {
+		return VarPtrs(*reinterpret_cast<const Obj*>(obj));
 	}
 
 	template<typename Obj>

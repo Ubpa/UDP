@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # 设定项目
-project(UDP VERSION 0.2.4)
+project(UDP VERSION 0.2.7)
 message(STATUS "[Project] ${PROJECT_NAME}")
 
 # 在 Debug 模式下自动对 dll 和 lib 文件名后边加 d，但 exe 仍然需要手动设置
@@ -32,6 +32,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include(FetchContent)
 
+# find or git clone UCMake
 message(STATUS "find package: UCMake v0.3.0")
 find_package(UCMake 0.3.0 QUIET)
 if(${UCMake_FOUND})
