@@ -18,24 +18,35 @@ namespace Ubpa {
 	template<typename Obj>
 	Reflection<Obj>& Reflection<Obj>::SetName(const std::string& name) noexcept {
 		this->name = name;
-		if constexpr (std::is_constructible_v<Obj>)
-			ReflectionMngr::Instance().RegistConstructor(name, []() -> void* {return new Obj; });
-		else if constexpr(is_derived_constructible_v<Obj>)
-			ReflectionMngr::Instance().RegistConstructor(name, []() -> void* {
-				detail::vtable_::Derived<Obj> derived;
-				auto buffer = std::malloc(sizeof(Obj));
-				if constexpr (std::is_move_constructible_v<Obj>)
-					*reinterpret_cast<Obj*>(buffer) = std::move(derived.t);
-				else
-					std::memcpy(buffer, &derived.t, sizeof(Obj));
-				return buffer;
+		return *this;
+	}
+
+	template<typename Obj>
+	Reflection<Obj>& Reflection<Obj>::RegistConstructor() {
+		if (!name.empty())
+			ReflectionMngr::Instance().RegistConstructor(name, []() -> void*{
+				return reinterpret_cast<void*>(new Obj);
 			});
-		else {
 #ifndef NDEBUG
-			std::cout << "WARNING::Reflection<" << name << ">::SetName:" << std::endl
-				<< "\t" << "you should regist constructor by yourself" << std::endl;
-#endif // !NDEBUG
+		else {
+			std::cerr << "WARNING::Reflection::RegistConstructor:" << std::endl
+				<< "\t" << "name is empty" << std::endl;
 		}
+#endif // !NDEBUG
+		return *this;
+	}
+
+	template<typename Obj>
+	template<typename Func>
+	Reflection<Obj>& Reflection<Obj>::RegistConstructor(Func&& func) {
+		if (!name.empty())
+			ReflectionMngr::Instance().RegistConstructor(name, std::forward<Func>(func));
+#ifndef NDEBUG
+		else {
+			std::cerr << "WARNING::Reflection::RegistConstructor:" << std::endl
+				<< "\t" << "name is empty" << std::endl;
+		}
+#endif // !NDEBUG
 		return *this;
 	}
 

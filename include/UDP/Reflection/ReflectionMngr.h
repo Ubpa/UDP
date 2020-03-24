@@ -8,45 +8,30 @@ namespace Ubpa {
 	struct Reflection;
 
 	struct ReflectionMngr {
-		static ReflectionMngr& Instance() {
-			static ReflectionMngr instance;
-			return instance;
-		}
+		static inline ReflectionMngr& Instance();
 
-		void* Creat(const std::string& name) const {
-			auto target = constructors.find(name);
-			if (target == constructors.end())
-				return nullptr;
-			return target->second();
-		}
+		// Args must match exactly
+		template<typename... Args>
+		void* Create(const std::string& name, Args... args) const;
 
-		ReflectionBase* GetReflction(const void* obj) const {
-			auto target = vt2refl.find(vtable(obj));
-			if (target == vt2refl.end())
-				return nullptr;
-
-			return target->second;
-		}
+		inline ReflectionBase* GetReflction(const void* obj) const;
 
 	private:
 		template<typename Obj>
 		friend struct Reflection;
 
 		template<typename Obj>
-		void Regist(ReflectionBase* refl) {
-			if constexpr (std::is_polymorphic_v<Obj>)
-				vt2refl[vtable_of<Obj>::get()] = refl;
-		}
+		void RegistRefl(ReflectionBase* refl);
 
 		template<typename Func>
-		void RegistConstructor(const std::string& name, Func&& func) {
-			constructors[name] = std::forward<Func>(func);
-		}
+		void RegistConstructor(const std::string& name, Func&& func);
 
 	private:
 		std::map<const void*, ReflectionBase*> vt2refl;
-		std::map<std::string, std::function<void* (void)>> constructors;
+		std::map<std::string, std::function<void* (void*)>> constructors;
 
 		ReflectionMngr() = default;
 	};
 }
+
+#include "detail/ReflectionMngr.inl"

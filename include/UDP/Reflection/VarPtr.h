@@ -1,9 +1,7 @@
 #pragma once
 
 namespace Ubpa {
-	struct VarPtrBase {
-		virtual ~VarPtrBase() = default;
-	};
+	struct VarPtrBase { virtual ~VarPtrBase() = default; };
 
 	template<typename T>
 	struct VarPtr : VarPtrBase {

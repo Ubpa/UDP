@@ -23,6 +23,8 @@ namespace Ubpa {
 
 		operator T() const noexcept { return Get(); }
 
+		Dirty(Dirty&& dirty) noexcept : update{ std::move(dirty.update) } {}
+
 	private:
 		const std::function<void(T & val)> update;
 		mutable bool dirty{ true };

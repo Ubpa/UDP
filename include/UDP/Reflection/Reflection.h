@@ -23,6 +23,12 @@ namespace Ubpa {
 		Reflection& SetName(const std::string& name) noexcept;
 		const std::string& GetName() noexcept { return name; }
 
+		// call after SetName()
+		Reflection& RegistConstructor();
+		template<typename Func>
+		Reflection& RegistConstructor(Func&& func);
+
+		// member variable pointer, member function pointer
 		template<typename T>
 		Reflection& Regist(T Obj::* ptr, const std::string& name) noexcept;
 
@@ -53,7 +59,7 @@ namespace Ubpa {
 
 		Reflection() {
 			ReflTraitsIniter::Instance().Regist<Obj>();
-			ReflectionMngr::Instance().Regist<Obj>(this);
+			ReflectionMngr::Instance().RegistRefl<Obj>(this);
 		}
 
 		template<typename Mem>
