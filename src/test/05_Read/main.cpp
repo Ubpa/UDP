@@ -36,9 +36,5 @@ int main() {
 	Reflection<A>::Instance().Var<float>("f").Of(a) = 3.f;
 	cout << Reflection<A>::Instance().Var<float>("f").Of(a) << endl;
 
-
-	static_assert(!std::is_const_v<std::remove_reference_t<decltype(*std::declval<const C>().pf)>>);
-	static_assert(std::is_const_v<std::remove_reference_t<decltype(*std::declval<const D>().pf)>>);
-
 	return 0;
 }
