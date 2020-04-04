@@ -1,2 +1,1 @@
-Ubpa_ToPackageName(utemplate_package_name UTemplate ${UTemplate_VERSION})
-Ubpa_AddTarget(MODE "HEAD" INTERFACE_INC ON LIBS "Ubpa::${utemplate_package_name}_core")
+Ubpa_AddTarget_GDR(MODE "HEAD" INTERFACE_INC ON PUBLIC_GLIBS "Ubpa::UTemplate_core")

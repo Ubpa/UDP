@@ -19,11 +19,14 @@ namespace Ubpa {
 	// ref: https://stackoverflow.com/questions/8523762/crtp-with-protected-derived-member
 	template<typename Impl>
 	struct InfVisitor<Impl>::Accessor : public Impl {
+		static_assert(!std::is_final<Impl>, "InfVisitor: 'Impl' must be non-final");
+
 		template<typename Derived>
 		inline static void ImplVisitOf(Impl* const impl, Derived* ptr) noexcept {
 			constexpr void(Impl:: * f)(Derived*) = &Impl::ImplVisit;
 			(impl->*f)(ptr);
 		}
+
 		template<typename Derived>
 		inline static void ImplVisitOfC(Impl* const impl, const Derived* ptr) noexcept {
 			constexpr void(Impl:: * f)(const Derived*) = &Impl::ImplVisit;
@@ -34,7 +37,7 @@ namespace Ubpa {
 	template<typename Impl>
 	template<typename T>
 	void InfVisitor<Impl>::Visit(T* ptr) {
-		static_assert(std::is_polymorphic_v<T>);
+		static_assert(std::is_polymorphic_v<T>, "InfVisitor: 'T' must be polymorphic");
 		Visit(reinterpret_cast<void*>(ptr));
 	}
 
@@ -60,7 +63,7 @@ namespace Ubpa {
 	template<typename Impl>
 	template<typename T>
 	void InfVisitor<Impl>::Visit(const T* ptr) {
-		static_assert(std::is_polymorphic_v<T>);
+		static_assert(std::is_polymorphic_v<T>, "InfVisitor: 'T' must be polymorphic");
 		Visit(reinterpret_cast<const void*>(ptr));
 	}
 
@@ -95,7 +98,7 @@ namespace Ubpa {
 	template<typename Impl>
 	template<typename Derived>
 	void InfVisitor<Impl>::RegistOne() {
-		static_assert(std::is_polymorphic_v<Derived>);
+		static_assert(std::is_polymorphic_v<Derived>, "InfVisitor: 'Derived' must be polymorphic");
 		const void* vt = vtable_of<Derived>::get();
 		assert(vt != nullptr);
 #ifndef NDEBUG
@@ -112,7 +115,7 @@ namespace Ubpa {
 	template<typename Impl>
 	template<typename Derived>
 	void InfVisitor<Impl>::RegistOneC() {
-		static_assert(std::is_polymorphic_v<Derived>);
+		static_assert(std::is_polymorphic_v<Derived>, "InfVisitor: 'Derived' must be polymorphic");
 		const void* vt = vtable_of<Derived>::get();
 		assert(vt != nullptr);
 #ifndef NDEBUG
@@ -129,7 +132,8 @@ namespace Ubpa {
 	template<typename Impl>
 	template<typename... Funcs>
 	void InfVisitor<Impl>::Regist(Funcs&&... funcs) {
-		static_assert(IsSet_v<TypeList<detail::InfVisitor_::RemovePtr<Front_t<typename FuncTraits<Funcs>::ArgList>>...>>);
+		static_assert(IsSet_v<TypeList<detail::InfVisitor_::RemovePtr<Front_t<typename FuncTraits<Funcs>::ArgList>>...>>,
+			"Funcs's auguments must be different");
 		(RegistOne<Funcs>(std::forward<Funcs>(funcs)), ...);
 	}
 
@@ -137,8 +141,8 @@ namespace Ubpa {
 	template<typename Func>
 	void InfVisitor<Impl>::RegistOne(Func&& func) {
 		using DerivedPointer = Front_t<typename FuncTraits<Func>::ArgList>;
-		using Derived = detail::InfVisitor_::RemovePtr<DerivedPointer>;
-		static_assert(std::is_same_v<DerivedPointer, Derived*>);
+		using Derived = detail::InfVisitor_::RemovePtr<DerivedPointer>; // [const] T
+		static_assert(std::is_same_v<DerivedPointer, Derived*>); // [const] T*
 
 		const void* p = vtable_of<std::decay_t<Derived>>::get();
 		assert(p != nullptr);

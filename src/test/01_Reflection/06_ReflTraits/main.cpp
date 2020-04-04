@@ -42,10 +42,10 @@ protected:
 	}
 
 private:
-	virtual void Receive(const string& name, const map<string, shared_ptr<VarPtrBase>>& nv) override {
+	virtual void Receive(const void* obj, const std::string& name, const std::map<std::string, std::shared_ptr<const VarPtrBase>>& vars) override {
 		cout << "{" << endl;
 		cout << "  \"type\": \"" << name << "\"" << endl;
-		for (auto [n, v] : nv) {
+		for (auto [n, v] : vars) {
 			cout << "  \"" << n << "\"" << ": ";
 			VarPtrVisitor<VarSerializer>::Visit(v);
 			cout << endl;

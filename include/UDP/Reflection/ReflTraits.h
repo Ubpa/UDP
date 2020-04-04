@@ -10,27 +10,37 @@ namespace Ubpa {
 	struct Reflection;
 	class ReflTraitsIniter;
 
+	// for ReflTraitsIniter
+	// get name and vars
 	class ReflTraitsVisitor : public InfVisitor<ReflTraitsVisitor> {
 		friend class ReflTraitsIniter;
+
 	protected:
-		virtual void Receive(const std::string& name, const std::map<std::string, std::shared_ptr<VarPtrBase>>& vars) {};
-		virtual void Receive(const std::string& name, const std::map<std::string, std::shared_ptr<const VarPtrBase>>& vars) {};
+		// obj is used for special visit (not just name and vars)
+		virtual void Receive(void* obj, const std::string& name, const std::map<std::string, std::shared_ptr<VarPtrBase>>& vars) {};
+		// obj is used for special visit (not just name and vars)
+		virtual void Receive(const void* obj, const std::string& name, const std::map<std::string, std::shared_ptr<const VarPtrBase>>& vars) {};
+
+	private:
+		friend struct InfVisitor<ReflTraitsVisitor>::Accessor;
 
 		template<typename T>
 		void ImplVisit(T* obj) {
 			auto name = Reflection<T>::Instance().GetName();
 			auto nv = Reflection<T>::Instance().VarPtrs(*obj);
-			Receive(name, nv);
+			Receive(obj, name, nv);
 		}
 
 		template<typename T>
 		void ImplVisit(const T* obj) {
 			auto name = Reflection<T>::Instance().GetName();
 			auto nv = Reflection<T>::Instance().VarPtrs(*obj);
-			Receive(name, nv);
+			Receive(obj, name, nv);
 		}
 	};
 
+	// singleton
+	// help for ReflTraitsVisitor's registion
 	class ReflTraitsIniter {
 	public:
 		static ReflTraitsIniter& Instance() {
@@ -51,6 +61,11 @@ namespace Ubpa {
 		}
 
 		void Init(ReflTraitsVisitor& visitor) const {
+			InitNC(visitor);
+			InitC(visitor);
+		}
+
+		void InitNC(ReflTraitsVisitor& visitor) const {
 			for (const auto& init : inits)
 				init(visitor);
 		}

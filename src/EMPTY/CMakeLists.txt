@@ -3,5 +3,5 @@ Ubpa_GlobGroupSrcs(RST sources PATHS
 	"${PROJECT_SOURCE_DIR}/include/UDP"
 )
 
-Ubpa_ToPackageName(utemplate_package_name UTemplate ${UTemplate_VERSION})
-Ubpa_AddTarget(MODE "EXE" SOURCES ${sources} TEST ON LIBS "Ubpa::${utemplate_package_name}_core")
+Ubpa_GetTargetName(core "${PROJECT_SOURCE_DIR}/src/core")
+Ubpa_AddTarget(MODE "EXE" SOURCES ${sources} TEST ON LIBS "Ubpa::${core}")
