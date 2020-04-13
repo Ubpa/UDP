@@ -21,31 +21,48 @@ namespace Ubpa {
 		T* operator->() noexcept { return &val; }
 		const T* operator->() const noexcept { return &val; }
 
+		template<typename F, typename U>
+		auto operator+(const Read<F, U>& y) const noexcept { return val + y.val; }
+		template<typename F, typename U>
+		auto operator-(const Read<F, U>& y) const noexcept { return val - y.val; }
+		template<typename F, typename U>
+		auto operator*(const Read<F, U>& y) const noexcept { return val * y.val; }
+		template<typename F, typename U>
+		auto operator/(const Read<F, U>& y) const noexcept { return val / y.val; }
+		template<typename F, typename U>
+		auto operator%(const Read<F, U>& y) const noexcept { return val % y.val; }
+
 		template<typename U>
 		auto operator+(const U& y) const noexcept { return val + y; }
 		template<typename U>
 		auto operator-(const U& y) const noexcept { return val - y; }
 		template<typename U>
-		auto operator*(const T& y) const noexcept { return val * y; }
+		auto operator*(const U& y) const noexcept { return val * y; }
 		template<typename U>
 		auto operator/(const U& y) const noexcept { return val / y; }
 		template<typename U>
 		auto operator%(const U& y) const noexcept { return val % y; }
+
 		const auto& operator[](size_t n) const noexcept { return val[n]; }
+
 		bool operator==(const T& y) const noexcept { return val == y; }
 		bool operator!=(const T& y) const noexcept { return val != y; }
 		bool operator>(const T& y) const noexcept { return val > y; }
 		bool operator>=(const T& y) const noexcept { return val >= y; }
 		bool operator<(const T& y) const noexcept { return val < y; }
 		bool operator<=(const T& y) const noexcept { return val <= y; }
+
 		auto operator*() const noexcept { return *val; }
 
 		auto begin() const noexcept { return val.begin(); }
 		auto end() const noexcept { return val.end(); }
 
 	private:
-		friend Friend;
 		T val;
+
+		friend Friend;
+		template<typename F, typename U>
+		friend struct Read;
 	};
 
 	template<typename Friend, typename T>

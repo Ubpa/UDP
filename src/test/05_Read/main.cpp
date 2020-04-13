@@ -25,6 +25,17 @@ struct D {
 	Read<A, float*> pf;
 };
 
+struct Int {
+	int value{ 2 };
+};
+
+struct Float {
+	Read<Float, float> value{ 1.f };
+	float operator+(const Int& i) const noexcept {
+		return value + i.value;
+	}
+};
+
 int main() {
 	A a;
 	
@@ -36,5 +47,7 @@ int main() {
 	Reflection<A>::Instance().Var<float>("f").Of(a) = 3.f;
 	cout << Reflection<A>::Instance().Var<float>("f").Of(a) << endl;
 
+	Float f;
+	f + Int{ 2 };
 	return 0;
 }
