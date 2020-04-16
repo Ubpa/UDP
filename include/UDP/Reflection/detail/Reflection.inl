@@ -148,7 +148,12 @@ namespace Ubpa::detail::Reflection_ {
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mv[name] = new MemVar<T Obj::*>{ ptr };
+			if constexpr (std::is_enum_v<T>) {
+				// enum is treated as int
+				refl.n2mv[name] = new MemVar<int Obj::*>{ reinterpret_cast<int Obj::*>(ptr) };
+			}
+			else
+				refl.n2mv[name] = new MemVar<T Obj::*>{ ptr };
 		}
 	};
 
