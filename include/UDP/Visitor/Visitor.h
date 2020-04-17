@@ -43,6 +43,23 @@ namespace Ubpa {
 		// for Derived without default constructor
 		template<typename DerivedPtr>
 		static void RegistVFPtr(DerivedPtr&& ptrDerived) noexcept;
+		
+		// is registed ImplVisit(T*) or ImplVisit(const T*)
+		template<typename T>
+		bool IsRegisted() const;
+
+		// ptr is pointed to a [single inheritance] [polymorphic] obj
+		// check wether ImplVisit(T*) or ImplVisit(const T*) is registed
+		// T is get by ptr's vtable
+		bool IsRegisted(void* ptr) const;
+
+		// ptr is pointed to a [single inheritance] [polymorphic] obj
+		// check wether ImplVisit(const T*) is registed
+		// T is get by ptr's vtable
+		bool IsRegisted(const void* ptr) const;
+
+		bool IsRegisted(CBasePointer ptrCBase) const noexcept;
+		bool IsRegisted(BasePointer ptrBase) const noexcept;
 
 	protected:
 		using VisitorType = Visitor;
@@ -78,7 +95,9 @@ namespace Ubpa {
 		std::unordered_map<const void*, std::function<void(CBasePointer)>> const_callbacks;
 		std::unordered_map<const void*, size_t> offsets;
 
-	private:
+	protected:
+		// used to access protected function 'ImplVisit'
+		// if use want to use private, you should use 'friend struct <Visitor>::Accessor'
 		struct Accessor;
 
 		template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename... Bases>

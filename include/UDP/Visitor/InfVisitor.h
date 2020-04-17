@@ -38,17 +38,17 @@ namespace Ubpa {
 
 		// is registed ImplVisit(T*) or ImplVisit(const T*)
 		template<typename T>
-		bool IsRegisted();
+		bool IsRegisted() const;
 
 		// ptr is pointed to a [single inheritance] [polymorphic] obj
 		// check wether ImplVisit(T*) or ImplVisit(const T*) is registed
 		// T is get by ptr's vtable
-		bool IsRegisted(void* ptr);
+		bool IsRegisted(void* ptr) const;
 
 		// ptr is pointed to a [single inheritance] [polymorphic] obj
 		// check wether ImplVisit(const T*) is registed
 		// T is get by ptr's vtable
-		bool IsRegisted(const void* ptr);
+		bool IsRegisted(const void* ptr) const;
 
 	protected:
 		// regist subclass's ImplVisit(const Deriveds*) ...

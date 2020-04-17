@@ -8,7 +8,7 @@ using namespace std;
 using namespace Ubpa;
 
 struct Figure { virtual ~Figure() = default; };
-struct Sphere : Figure { int radius{ 1 }; };
+struct Sphere : Figure { const int radius{ 1 }; const int* pi{ nullptr }; };
 struct Square : Figure { float sideLength{ 2.f }; };
 
 struct Cosmetics { virtual ~Cosmetics() = default; };
@@ -20,6 +20,8 @@ public:
 	VarSerializer() {
 		VarPtrVisitor<VarSerializer>::RegistC<
 			float,
+			const int,
+			//const int*,
 			string,
 			array<float, 3>>();
 	}
@@ -46,9 +48,11 @@ private:
 		cout << "{" << endl;
 		cout << "  \"type\": \"" << name << "\"" << endl;
 		for (auto [n, v] : vars) {
-			cout << "  \"" << n << "\"" << ": ";
-			VarPtrVisitor<VarSerializer>::Visit(v);
-			cout << endl;
+			if (VarPtrVisitor<VarSerializer>::IsRegisted(v)) {
+				cout << "  \"" << n << "\"" << ": ";
+				VarPtrVisitor<VarSerializer>::Visit(v);
+				cout << endl;
+			}
 		}
 		cout << "}" << endl;
 	}
@@ -57,7 +61,8 @@ private:
 int main() {
 	Reflection<Sphere>::Instance()
 		.SetName("Sphere")
-		.Regist(&Sphere::radius, "radius");
+		.Regist(&Sphere::radius, "radius")
+		.Regist(&Sphere::pi, "pi");
 
 	Reflection<Square>::Instance()
 		.SetName("Square")
@@ -72,13 +77,14 @@ int main() {
 		.Regist(&Lipglaze::color, "color");
 
 	VarSerializer vs;
-	ReflTraitsIniter::Instance().Init(vs);
+	ReflTraitsIniter::Instance().InitC(vs);
 
 	vs.Regist([](const int& v) {
 		cout << v;
 		});
 
 	Sphere a;
+	a.pi = new int;
 	Square b;
 	Figure* figures[2] = { &a,&b };
 	Lipstick c;
@@ -89,4 +95,8 @@ int main() {
 		vs.Visit(f);
 	for (auto c : cosmetics)
 		vs.Visit(c);
+
+	delete a.pi;
+
+	return 0;
 }

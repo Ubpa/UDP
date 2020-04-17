@@ -13,6 +13,12 @@ namespace Ubpa {
 		SharedPtrVisitor<VarPtrVisitor<Impl>, VarPtrBase>::template RegistC<VarPtr<Ts>...>();
 	}
 
+	/*template<typename Impl>
+	template<typename T>
+	bool VarPtrVisitor<Impl>::IsRegisted() const {
+		Base::IsRegisted<VarPtr<T>>();
+	}*/
+
 	template<typename Impl>
 	template<typename T>
 	struct VarPtrVisitor<Impl>::Accessor : Impl {

@@ -176,7 +176,7 @@ namespace Ubpa {
 
 	template<typename Impl>
 	template<typename T>
-	bool InfVisitor<Impl>::IsRegisted() {
+	bool InfVisitor<Impl>::IsRegisted() const {
 		if constexpr (!std::is_polymorphic_v<T>)
 			return false;
 		else {
@@ -188,7 +188,7 @@ namespace Ubpa {
 	}
 
 	template<typename Impl>
-	bool InfVisitor<Impl>::IsRegisted(void* ptr) {
+	bool InfVisitor<Impl>::IsRegisted(void* ptr) const {
 		const void* p = vtable(ptr);
 		return p != nullptr && (
 			callbacks.find(p) != callbacks.end()
@@ -196,7 +196,7 @@ namespace Ubpa {
 	}
 
 	template<typename Impl>
-	bool InfVisitor<Impl>::IsRegisted(const void* ptr) {
+	bool InfVisitor<Impl>::IsRegisted(const void* ptr) const {
 		const void* p = vtable(ptr);
 		return p != nullptr && const_callbacks.find(p) != const_callbacks.end();
 	}

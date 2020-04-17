@@ -19,7 +19,9 @@ namespace Ubpa {
 
 	// ================================================================================
 
-	protected:
+	private:
+		friend struct SharedPtrVisitor<VarPtrVisitor<Impl>, VarPtrBase>::Accessor;
+
 		template<typename T>
 		inline void ImplVisit(std::shared_ptr<VarPtr<T>> p);
 

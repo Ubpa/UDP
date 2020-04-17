@@ -30,9 +30,20 @@ namespace Ubpa {
 
 	template<typename Obj, typename T>
 	class MemVar<T Obj::*> : public MemVarBase<Obj> {
+	private:
+		template<typename U> struct RemoveConst { using type = U; };
+		template<typename U> struct RemoveConst<const U> { using type = U; };
+		template<typename U> struct RemoveConst<const U*> { using type = U*; };
+		template<typename U> struct RemoveConst<const U* const> { using type = U*; };
+		template<typename U> using RemoveConst_t = typename RemoveConst<U>::type;
+		template<typename U> struct IsConst : std::false_type {};
+		template<typename U> struct IsConst<const U> : std::true_type {};
+		template<typename U> struct IsConst<const U*> : std::true_type {};
+		template<typename U> struct IsConst<const U* const> : std::true_type {};
+		template<typename U> static constexpr bool IsConst_v = IsConst<U>::value;
 	public:
 		MemVar(T Obj::* var = nullptr)
-			: MemVarBase<Obj>(reinterpret_cast<void* Obj::*>(var)) {}
+			: MemVarBase<Obj>{ reinterpret_cast<void* Obj::*>(const_cast<RemoveConst_t<T> Obj::*>(var)) } {}
 
 		T& Of(Obj& obj) const noexcept {
 			return obj.*get();
@@ -65,7 +76,10 @@ namespace Ubpa {
 
 	private:
 		T Obj::* get() const noexcept {
-			return reinterpret_cast<T Obj::*>(MemVarBase<Obj>::var);
+			if constexpr (IsConst_v<T>)
+				return reinterpret_cast<T Obj::*>(const_cast<const void* Obj::*>(MemVarBase<Obj>::var));
+			else
+				return reinterpret_cast<T Obj::*>(MemVarBase<Obj>::var);
 		}
 		using MemVarBase<Obj>::As;
 	};

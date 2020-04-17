@@ -257,6 +257,44 @@ namespace Ubpa {
 		(RegistOneC<Deriveds>(), ...);
 	}
 
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
+	template<typename T>
+	bool Visitor<Impl, AddPointer, PointerCaster, Base>::IsRegisted() const {
+		if constexpr (!std::is_polymorphic_v<T>)
+			return false;
+		else {
+			const void* p = vtable_of<T>::get();
+			return p != nullptr && (
+				callbacks.find(p) != callbacks.end()
+				|| const_callbacks.find(p) != const_callbacks.end());
+		}
+	}
+
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
+	bool Visitor<Impl, AddPointer, PointerCaster, Base>::IsRegisted(void* ptr) const {
+		const void* p = vtable(ptr);
+		return p != nullptr && (
+			callbacks.find(p) != callbacks.end()
+			|| const_callbacks.find(p) != const_callbacks.end());
+	}
+
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
+	bool Visitor<Impl, AddPointer, PointerCaster, Base>::IsRegisted(const void* ptr) const {
+		const void* p = vtable(ptr);
+		return p != nullptr && const_callbacks.find(p) != const_callbacks.end();
+	}
+
+
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
+	bool Visitor<Impl, AddPointer, PointerCaster, Base>::IsRegisted(BasePointer ptrBase) const noexcept {
+		return IsRegisted(&(*ptrBase));
+	}
+
+	template<typename Impl, template<typename>class AddPointer, typename PointerCaster, typename Base>
+	bool Visitor<Impl, AddPointer, PointerCaster, Base>::IsRegisted(CBasePointer ptrCBase) const noexcept {
+		return IsRegisted(&(*ptrCBase));
+	}
+
 	template<typename Impl, typename Base>
 	class RawPtrVisitor
 		: public Visitor<Impl, std::add_pointer_t, detail::Visitor_::PointerCaster<std::add_pointer_t>, Base> {};

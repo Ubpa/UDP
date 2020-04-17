@@ -9,26 +9,28 @@ using namespace Ubpa;
 class C {
 public:
 	void Foo() {
-		cout << n << " non-const Foo" << endl;
+		cout << cn << ", " << n << " non-const Foo" << endl;
 	}
 	void Bar() const {
-		cout << n << " const Bar" << endl;
+		cout << cn << ", " << n << " const Bar" << endl;
 	}
 	void Car(float d) const {
-		cout << d << " const Car" << endl;
+		cout << cn << ", " << d << " const Car" << endl;
 	}
 	int n{ 0 };
+	const int* cn{ nullptr };
 };
 
 int main() {
 	Reflection<C>::Instance()
 		.Regist(&C::n, "n")
+		.Regist(&C::cn, "cn")
 		.Regist(&C::Foo, "Foo")
 		.Regist(&C::Bar, "Bar")
 		.Regist(&C::Car, "Car");
 
-	C c{ 3 };
-	const C cc{ 4 };
+	C c{ 1 };
+	const C cc{ 3 };
 
 	Reflection<C>::Instance().Call("Foo", c);
 	Reflection<C>::Instance().Call("no", c);
