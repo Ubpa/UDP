@@ -16,37 +16,17 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::SetName(const std::string& name) noexcept {
-		this->name = name;
-		return *this;
-	}
-
-	template<typename Obj>
 	Reflection<Obj>& Reflection<Obj>::RegistConstructor() {
-		if (!name.empty())
-			ReflectionMngr::Instance().RegistConstructor(name, []() -> void*{
-				return reinterpret_cast<void*>(new Obj);
-			});
-#ifndef NDEBUG
-		else {
-			std::cerr << "WARNING::Reflection::RegistConstructor:" << std::endl
-				<< "\t" << "name is empty" << std::endl;
-		}
-#endif // !NDEBUG
+		ReflectionMngr::Instance().RegistConstructor(Name(), []() -> void* {
+			return reinterpret_cast<void*>(new Obj);
+		});
 		return *this;
 	}
 
 	template<typename Obj>
 	template<typename Func>
 	Reflection<Obj>& Reflection<Obj>::RegistConstructor(Func&& func) {
-		if (!name.empty())
-			ReflectionMngr::Instance().RegistConstructor(name, std::forward<Func>(func));
-#ifndef NDEBUG
-		else {
-			std::cerr << "WARNING::Reflection::RegistConstructor:" << std::endl
-				<< "\t" << "name is empty" << std::endl;
-		}
-#endif // !NDEBUG
+		ReflectionMngr::Instance().RegistConstructor(Name(), std::forward<Func>(func));
 		return *this;
 	}
 
@@ -55,6 +35,21 @@ namespace Ubpa {
 	Reflection<Obj>& Reflection<Obj>::Regist(T Obj::* ptr, const std::string& name) noexcept {
 		detail::Reflection_::Regist<T Obj::*>::run(*this, ptr, name);
 		return *this;
+	}
+
+	template<typename Obj>
+	Reflection<Obj>& Reflection<Obj>::Regist(const std::string& key, const std::string& value) noexcept {
+		metamap[key] = value;
+		return *this;
+	}
+
+	template<typename Obj>
+	const std::string Reflection<Obj>::Meta(const std::string& key) const noexcept {
+		auto target = metamap.find(key);
+		if (target == metamap.end())
+			return "";
+		else
+			return target->second;
 	}
 
 	template<typename Obj>
@@ -73,33 +68,33 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	std::map<std::string, MemVarBase<Obj>*> Reflection<Obj>::Vars() const noexcept {
+	xMap<std::string, MemVarBase<Obj>*> Reflection<Obj>::Vars() const noexcept {
 		return n2mv;
 	}
 
 	template<typename Obj>
-	std::map<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(Obj& obj) const noexcept {
-		std::map<std::string, std::shared_ptr<VarPtrBase>> rst;
+	xMap<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(Obj& obj) const noexcept {
+		xMap<std::string, std::shared_ptr<VarPtrBase>> rst;
 		for (const auto& [n, mv] : n2mv)
 			rst[n] = mv->PtrOf(obj);
 		return rst;
 	}
 
 	template<typename Obj>
-	std::map<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const Obj& obj) const noexcept {
-		std::map<std::string, std::shared_ptr<const VarPtrBase>> rst;
+	xMap<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const Obj& obj) const noexcept {
+		xMap<std::string, std::shared_ptr<const VarPtrBase>> rst;
 		for (const auto& [n, mv] : n2mv)
 			rst[n] = mv->PtrOf(obj);
 		return rst;
 	}
 
 	template<typename Obj>
-	std::map<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(void* obj) const {
+	xMap<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(void* obj) const {
 		return VarPtrs(*reinterpret_cast<Obj*>(obj));
 	}
 
 	template<typename Obj>
-	std::map<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const void* obj) const {
+	xMap<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const void* obj) const {
 		return VarPtrs(*reinterpret_cast<const Obj*>(obj));
 	}
 

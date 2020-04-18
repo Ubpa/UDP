@@ -274,3 +274,5 @@ config/config.out
 lib/
 bin/
 build/
+
+_deps/

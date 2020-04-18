@@ -40,7 +40,6 @@ int main() {
 	A a;
 	
 	Reflection<A>::Instance()
-		.SetName("A")
 		.Regist(&A::f, "f");
 
 	cout << Reflection<A>::Instance().Var<float>("f").Of(a) << endl;

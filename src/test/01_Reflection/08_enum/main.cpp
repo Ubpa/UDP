@@ -18,7 +18,6 @@ struct A {
 int main() {
 	
 	Reflection<A>::Instance()
-		.SetName("A")
 		.Regist(&A::e, "e");
 
 	A a;

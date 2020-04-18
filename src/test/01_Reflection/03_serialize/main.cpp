@@ -36,7 +36,7 @@ struct Serializer : RawPtrMultiVisitor<Serializer, Figure, Cosmetics> {
 		static MemVarSerializer<T> ms;
 		ms.SetObj(e);
 		cout << "{" << endl;
-		cout << "\"type\": \"" << Reflection<T>::Instance().GetName() << "\"" << endl;
+		cout << "\"type\": \"" << Reflection<T>::Instance().Name() << "\"" << endl;
 		for (auto nv : Reflection<T>::Instance().Vars()) {
 			cout << "\"" << nv.first << "\"" << ": ";
 			ms.Visit(nv.second);
@@ -48,19 +48,15 @@ struct Serializer : RawPtrMultiVisitor<Serializer, Figure, Cosmetics> {
 
 int main() {
 	Reflection<Sphere>::Instance()
-		.SetName("Sphere")
 		.Regist(&Sphere::radius, "radius");
 
 	Reflection<Square>::Instance()
-		.SetName("Square")
 		.Regist(&Square::sideLength, "sideLength");
 
 	Reflection<Lipstick>::Instance()
-		.SetName("Lipstick")
 		.Regist(&Lipstick::name, "name");
 
 	Reflection<Lipglaze>::Instance()
-		.SetName("Lipglaze")
 		.Regist(&Lipglaze::color, "color");
 
 	Serializer serializer;

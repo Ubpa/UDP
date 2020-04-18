@@ -12,7 +12,7 @@ namespace Ubpa {
 
 		// Args must match exactly
 		template<typename... Args>
-		void* Create(const std::string& name, Args... args) const;
+		void* Create(std::string_view name, Args... args) const;
 
 		inline ReflectionBase* GetReflction(const void* obj) const;
 
@@ -24,11 +24,11 @@ namespace Ubpa {
 		void RegistRefl(ReflectionBase* refl);
 
 		template<typename Func>
-		void RegistConstructor(const std::string& name, Func&& func);
+		void RegistConstructor(std::string_view name, Func&& func);
 
 	private:
-		std::map<const void*, ReflectionBase*> vt2refl;
-		std::map<std::string, std::function<void* (void*)>> constructors;
+		xMap<const void*, ReflectionBase*> vt2refl;
+		xMap<std::string, std::function<void* (void*)>> constructors;
 
 		ReflectionMngr() = default;
 	};

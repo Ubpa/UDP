@@ -1,6 +1,8 @@
 #include <UDP/Reflection/Reflection.h>
 #include <UDP/Reflection/VarPtrVisitor.h>
 
+#include <_deps/nameof.hpp>
+
 #include <iostream>
 #include <array>
 
@@ -44,7 +46,7 @@ protected:
 	}
 
 private:
-	virtual void Receive(const void* obj, const std::string& name, const std::map<std::string, std::shared_ptr<const VarPtrBase>>& vars) override {
+	virtual void Receive(const void* obj, std::string_view name, const xMap<std::string, std::shared_ptr<const VarPtrBase>>& vars) override {
 		cout << "{" << endl;
 		cout << "  \"type\": \"" << name << "\"" << endl;
 		for (auto [n, v] : vars) {
@@ -60,28 +62,24 @@ private:
 
 int main() {
 	Reflection<Sphere>::Instance()
-		.SetName("Sphere")
-		.Regist(&Sphere::radius, "radius")
-		.Regist(&Sphere::pi, "pi");
+		.Regist(&Sphere::radius, NAMEOF(&Sphere::radius).c_str())
+		.Regist(&Sphere::pi, NAMEOF(&Sphere::pi).c_str());
 
 	Reflection<Square>::Instance()
-		.SetName("Square")
-		.Regist(&Square::sideLength, "sideLength");
+		.Regist(&Square::sideLength, NAMEOF(&Square::sideLength).c_str());
 
 	Reflection<Lipstick>::Instance()
-		.SetName("Lipstick")
-		.Regist(&Lipstick::name, "name");
+		.Regist(&Lipstick::name, NAMEOF(&Lipstick::name).c_str());
 
 	Reflection<Lipglaze>::Instance()
-		.SetName("Lipglaze")
-		.Regist(&Lipglaze::color, "color");
+		.Regist(&Lipglaze::color, NAMEOF(&Lipglaze::color).c_str());
 
 	VarSerializer vs;
 	ReflTraitsIniter::Instance().InitC(vs);
 
 	vs.Regist([](const int& v) {
 		cout << v;
-		});
+	});
 
 	Sphere a;
 	a.pi = new int;

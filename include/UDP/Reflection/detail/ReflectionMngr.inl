@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Basic/xSTL/xStr.h"
+
 namespace Ubpa::detail::Reflection_ {
 	template<typename ArgList> struct Pack;
 }
@@ -11,7 +13,7 @@ namespace Ubpa {
 	}
 
 	template<typename... Args>
-	void* ReflectionMngr::Create(const std::string& name, Args... args) const {
+	void* ReflectionMngr::Create(std::string_view name, Args... args) const {
 		auto target = constructors.find(name);
 		if (target == constructors.end())
 			return nullptr;
@@ -40,8 +42,8 @@ namespace Ubpa {
 	}
 
 	template<typename Func>
-	void ReflectionMngr::RegistConstructor(const std::string& name, Func&& func) {
-		constructors[name] = detail::Reflection_::Pack<FuncTraits_ArgList<Func>>::template run(func);
+	void ReflectionMngr::RegistConstructor(std::string_view name, Func&& func) {
+		constructors[str(name)] = detail::Reflection_::Pack<FuncTraits_ArgList<Func>>::template run(func);
 	}
 }
 

@@ -17,14 +17,13 @@ struct Point {
 
 int main() {
 	Reflection<Point>::Instance()
-		.SetName("Point")
 		.Regist(&Point::x, "x")
 		.Regist(&Point::y, "y")
 		.RegistConstructor([](float x, float y) {
 			return new Point(x, y);
 		});
 
-	auto ptr = ReflectionMngr::Instance().Create("Point", 1.f, 2.f);
+	auto ptr = ReflectionMngr::Instance().Create(NAMEOF_TYPE(Point), 1.f, 2.f);
 	auto refl = ReflectionMngr::Instance().GetReflction(ptr);
 
 	for (auto [n, v] : refl->VarPtrs(ptr))

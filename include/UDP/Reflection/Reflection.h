@@ -5,6 +5,8 @@
 #include "ReflTraits.h"
 #include "ReflectionMngr.h"
 
+#include <_deps/nameof.hpp>
+
 #include <map>
 #include <string>
 
@@ -20,8 +22,7 @@ namespace Ubpa {
 	struct Reflection final : ReflectionBase {
 		static Reflection& Instance() noexcept;
 
-		Reflection& SetName(const std::string& name) noexcept;
-		const std::string& GetName() noexcept { return name; }
+		constexpr std::string_view Name() noexcept { return nameof::nameof_type<Obj>(); }
 
 		// call after SetName()
 		Reflection& RegistConstructor();
@@ -31,31 +32,34 @@ namespace Ubpa {
 		// member variable pointer, member function pointer
 		template<typename T>
 		Reflection& Regist(T Obj::* ptr, const std::string& name) noexcept;
+		Reflection& Regist(const std::string& key, const std::string& value) noexcept;
+		const std::string Meta(const std::string& key) const noexcept;
+		const xMap<std::string, std::string> Metas() const noexcept { return metamap; }
 
 		template<typename U>
 		MemVar<U Obj::*> Var(const std::string& name) const noexcept;
 
-		std::map<std::string, MemVarBase<Obj>*> Vars() const noexcept;
+		xMap<std::string, MemVarBase<Obj>*> Vars() const noexcept;
 
-		std::map<std::string, std::shared_ptr<VarPtrBase>> VarPtrs(Obj& obj) const noexcept;
-		std::map<std::string, std::shared_ptr<const VarPtrBase>> VarPtrs(const Obj& obj) const noexcept;
+		xMap<std::string, std::shared_ptr<VarPtrBase>> VarPtrs(Obj& obj) const noexcept;
+		xMap<std::string, std::shared_ptr<const VarPtrBase>> VarPtrs(const Obj& obj) const noexcept;
 
 		template<typename Ret = void, typename RObj, typename... Args>
 		Ret Call(const std::string& name, RObj&& obj, Args&&... args);
 
-		std::map<std::string, MemFuncBase<Obj>*> Funcs() const noexcept { return n2mf; }
+		xMap<std::string, MemFuncBase<Obj>*> Funcs() const noexcept { return n2mf; }
 
-		std::map<std::string, MemCFuncBase<Obj>*> CFuncs() const noexcept { return n2mcf; }
-
-	private:
-		virtual std::map<std::string, std::shared_ptr<VarPtrBase>> VarPtrs(void* obj) const override;
-		virtual std::map<std::string, std::shared_ptr<const VarPtrBase>> VarPtrs(const void* obj) const override;
+		xMap<std::string, MemCFuncBase<Obj>*> CFuncs() const noexcept { return n2mcf; }
 
 	private:
-		std::map<std::string, MemVarBase<Obj>*> n2mv;
-		std::map<std::string, MemFuncBase<Obj>*> n2mf;
-		std::map<std::string, MemCFuncBase<Obj>*> n2mcf;
-		std::string name;
+		virtual xMap<std::string, std::shared_ptr<VarPtrBase>> VarPtrs(void* obj) const override;
+		virtual xMap<std::string, std::shared_ptr<const VarPtrBase>> VarPtrs(const void* obj) const override;
+
+	private:
+		xMap<std::string, MemVarBase<Obj>*> n2mv;
+		xMap<std::string, MemFuncBase<Obj>*> n2mf;
+		xMap<std::string, MemCFuncBase<Obj>*> n2mcf;
+		xMap<std::string, std::string> metamap;
 
 		Reflection() {
 			ReflTraitsIniter::Instance().Regist<Obj>();

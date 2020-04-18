@@ -3,7 +3,7 @@
 #include "../Visitor/InfVisitor.h"
 #include "VarPtr.h"
 
-#include <map>
+#include "../Basic/xSTL/xMap.h"
 
 namespace Ubpa {
 	template<typename T>
@@ -17,23 +17,23 @@ namespace Ubpa {
 
 	protected:
 		// obj is used for special visit (not just name and vars)
-		virtual void Receive(void* obj, const std::string& name, const std::map<std::string, std::shared_ptr<VarPtrBase>>& vars) {};
+		virtual void Receive(void* obj, std::string_view name, const xMap<std::string, std::shared_ptr<VarPtrBase>>& vars) {};
 		// obj is used for special visit (not just name and vars)
-		virtual void Receive(const void* obj, const std::string& name, const std::map<std::string, std::shared_ptr<const VarPtrBase>>& vars) {};
+		virtual void Receive(const void* obj, std::string_view name, const xMap<std::string, std::shared_ptr<const VarPtrBase>>& vars) {};
 
 	private:
 		friend struct InfVisitor<ReflTraitsVisitor>::Accessor;
 
 		template<typename T>
 		void ImplVisit(T* obj) {
-			auto name = Reflection<T>::Instance().GetName();
+			auto name = Reflection<T>::Instance().Name();
 			auto nv = Reflection<T>::Instance().VarPtrs(*obj);
 			Receive(obj, name, nv);
 		}
 
 		template<typename T>
 		void ImplVisit(const T* obj) {
-			auto name = Reflection<T>::Instance().GetName();
+			auto name = Reflection<T>::Instance().Name();
 			auto nv = Reflection<T>::Instance().VarPtrs(*obj);
 			Receive(obj, name, nv);
 		}
