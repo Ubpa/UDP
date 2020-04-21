@@ -18,7 +18,9 @@ struct Point {
 int main() {
 	Reflection<Point>::Instance()
 		.Regist(&Point::x, "x")
+		.Regist("x::info", "hello")
 		.Regist(&Point::y, "y")
+		.Regist("y::info", "hello")
 		.RegistConstructor([](float x, float y) {
 			return new Point(x, y);
 		});
@@ -28,4 +30,6 @@ int main() {
 
 	for (auto [n, v] : refl->VarPtrs(ptr))
 		cout << n << endl;
+	for (auto [k, v] : refl->Metas())
+		cout << k << ": " << v;
 }

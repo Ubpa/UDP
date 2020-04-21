@@ -44,6 +44,12 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
+	Reflection<Obj>& Reflection<Obj>::Regist(const std::string& field, const std::string& kind, const std::string& value) noexcept {
+		Regist(field + "::" + kind, value);
+		return *this;
+	}
+
+	template<typename Obj>
 	const std::string Reflection<Obj>::Meta(const std::string& key) const noexcept {
 		auto target = metamap.find(key);
 		if (target == metamap.end())
@@ -162,6 +168,7 @@ namespace Ubpa::detail::Reflection_ {
 			}
 #endif // !NDEBUG
 			refl.n2mv[name] = new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) };
+			refl.Regist(name, ReflectionBase::Meta::is_read_only, ReflectionBase::Meta::value_true);
 		}
 	};
 

@@ -19,6 +19,7 @@ namespace Ubpa {
 	private:
 		size_t id{ 0 };
 		std::map<size_t, std::function<void(Args...)>> slots;
+
 	};
 }
 

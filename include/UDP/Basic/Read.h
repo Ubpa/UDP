@@ -12,8 +12,6 @@ namespace Ubpa {
 
 		Read(const Read& read) noexcept : val{ read.val } {}
 		Read(Read&& read) noexcept : val{ std::move(read.val) } {}
-		Read& operator=(const Read& read) noexcept { val = read.val; return *this; }
-		Read& operator=(Read&& read) noexcept { val = std::move(read.val); return *this; }
 
 		const T& get() const noexcept { return val; }
 		operator T() const noexcept { return val; }
@@ -59,6 +57,9 @@ namespace Ubpa {
 
 	private:
 		T val;
+		
+		Read& operator=(const Read& read) noexcept { val = read.val; return *this; }
+		Read& operator=(Read&& read) noexcept { val = std::move(read.val); return *this; }
 
 		friend Friend;
 		template<typename F, typename U>
@@ -78,11 +79,13 @@ namespace Ubpa {
 
 		Read(const Read& read) noexcept : val{ read.val } {}
 		Read(Read&& read) noexcept : val{ std::move(read.val) } {}
-		Read& operator=(const Read& read) noexcept { val = read.val; return *this; }
-		Read& operator=(Read&& read) noexcept { val = std::move(read.val); return *this; }
 
 	private:
 		friend Friend;
+		
+		Read& operator=(const Read& read) noexcept { val = read.val; return *this; }
+		Read& operator=(Read&& read) noexcept { val = std::move(read.val); return *this; }
+		
 		T* val;
 	};
 }

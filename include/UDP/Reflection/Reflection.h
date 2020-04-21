@@ -22,6 +22,8 @@ namespace Ubpa {
 	struct Reflection final : ReflectionBase {
 		static Reflection& Instance() noexcept;
 
+		static void Init() noexcept { Instance(); }
+
 		constexpr std::string_view Name() noexcept { return nameof::nameof_type<Obj>(); }
 
 		// call after SetName()
@@ -33,8 +35,10 @@ namespace Ubpa {
 		template<typename T>
 		Reflection& Regist(T Obj::* ptr, const std::string& name) noexcept;
 		Reflection& Regist(const std::string& key, const std::string& value) noexcept;
-		const std::string Meta(const std::string& key) const noexcept;
-		const xMap<std::string, std::string> Metas() const noexcept { return metamap; }
+		Reflection& Regist(const std::string& field, const std::string& kind, const std::string& value) noexcept;
+
+		virtual const std::string Meta(const std::string& key) const noexcept override;
+		virtual const xMap<std::string, std::string> Metas() const noexcept override { return metamap; }
 
 		template<typename U>
 		MemVar<U Obj::*> Var(const std::string& name) const noexcept;
@@ -64,6 +68,8 @@ namespace Ubpa {
 		Reflection() {
 			ReflTraitsIniter::Instance().Regist<Obj>();
 			ReflectionMngr::Instance().RegistRefl<Obj>(this);
+			if constexpr (std::is_constructible_v<Obj>)
+				RegistConstructor();
 		}
 
 		template<typename Mem>
