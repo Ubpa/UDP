@@ -12,7 +12,7 @@ namespace Ubpa {
 	inline const void* vtable_of<T>::get() noexcept {
 		if (!value) {
 			if constexpr (std::is_constructible_v<T>) {
-				T tmp{};
+				T tmp;
 				regist(&tmp);
 			}
 			else if constexpr (is_derived_constructible_v<T>) {
@@ -20,7 +20,7 @@ namespace Ubpa {
 				regist(&tmp.t);
 			}
 			else
-				return nullptr;
+				assert("vtable_of::get: vtable regist fail");
 		}
 		return value;
 	}

@@ -1,37 +1,42 @@
 #pragma once
 
 #include "VarPtr.h"
-#include "../Visitor/Visitor.h"
+#include "../Visitor.h"
 
 namespace Ubpa {
 	template<typename Impl>
-	class VarPtrVisitor : public SharedPtrVisitor<VarPtrVisitor<Impl>, VarPtrBase> {
+	class VarPtrVisitor : protected Visitor<void(VarPtrVisitor<Impl>::*)()> {
+		using Base = Visitor<void(VarPtrVisitor<Impl>::*)()>;
 	public:
-		template<typename... Funcs>
-		inline void Regist(Funcs&&... funcs) noexcept;
+		void Visit(std::shared_ptr<VarPtrBase> p) const {
+			Base::Visit(&(*p));
+		}
+
+		bool IsRegisted(std::shared_ptr<VarPtrBase> p) const {
+			return Base::IsRegisted(&(*p));
+		}
+
+		template<typename T>
+		bool IsRegisted() const {
+			return Base::template IsRegisted<VarPtr<T>>();
+		}
 
 	protected:
+		// ImplVisit(Ts&)
 		template<typename... Ts>
-		inline void Regist() noexcept; // ImplVisit(Ts&)
-
-		template<typename... Ts>
-		inline void RegistC() noexcept; // ImplVisit(const Ts&)
+		void Regist() noexcept {
+			Base::template Regist<VarPtr<Ts>...>();
+		}
 
 	// ================================================================================
 
 	private:
-		friend struct SharedPtrVisitor<VarPtrVisitor<Impl>, VarPtrBase>::Accessor;
+		friend struct Visitor<void(VarPtrVisitor<Impl>::*)()>::Accessor;
+
+		struct Accessor;
 
 		template<typename T>
-		inline void ImplVisit(std::shared_ptr<VarPtr<T>> p);
-
-		template<typename T>
-		inline void ImplVisit(std::shared_ptr<const VarPtr<T>> p);
-
-	private:
-		template<typename Func>
-		inline void RegistOne(Func&& func) noexcept;
-		template<typename T> struct Accessor;
+		inline void ImplVisit(VarPtr<T>* p) const;
 	};
 }
 

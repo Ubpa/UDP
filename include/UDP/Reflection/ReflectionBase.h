@@ -16,9 +16,8 @@ namespace Ubpa {
 
 		struct Meta
 		{
-			static constexpr char value_true[] = "true";
-			static constexpr char value_false[] = "false";
-			static constexpr char is_read_only[] = "is_read_only";
+			static constexpr char default_value[] = "null";
+			static constexpr char read_only[] = "read_only";
 		};
 
 		const std::string FieldMeta(std::string_view field, std::string_view kind) const {

@@ -20,7 +20,7 @@ struct Lipglaze : Cosmetics { std::array<float, 3> color{ 0.9f,0.1f,0.1f }; };
 class VarSerializer : public VarPtrVisitor<VarSerializer>, public ReflTraitsVisitor {
 public:
 	VarSerializer() {
-		VarPtrVisitor<VarSerializer>::RegistC<
+		VarPtrVisitor<VarSerializer>::Regist<
 			float,
 			const int,
 			//const int*,
@@ -46,10 +46,10 @@ protected:
 	}
 
 private:
-	virtual void Receive(const void* obj, std::string_view name, const xMap<std::string, std::shared_ptr<const VarPtrBase>>& vars) override {
+	virtual void Receive(void* obj, std::string_view name, ReflectionBase& refl) override {
 		cout << "{" << endl;
 		cout << "  \"type\": \"" << name << "\"" << endl;
-		for (auto [n, v] : vars) {
+		for (auto [n, v] : refl.VarPtrs(obj)) {
 			if (VarPtrVisitor<VarSerializer>::IsRegisted(v)) {
 				cout << "  \"" << n << "\"" << ": ";
 				VarPtrVisitor<VarSerializer>::Visit(v);
@@ -75,11 +75,11 @@ int main() {
 		.Regist(&Lipglaze::color, NAMEOF(&Lipglaze::color).c_str());
 
 	VarSerializer vs;
-	ReflTraitsIniter::Instance().InitC(vs);
+	ReflTraitsIniter::Instance().Init(vs);
 
-	vs.Regist([](const int& v) {
+	/*vs.Regist([](const int& v) {
 		cout << v;
-	});
+	});*/
 
 	Sphere a;
 	a.pi = new int;

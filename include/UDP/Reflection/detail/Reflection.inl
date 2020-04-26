@@ -168,7 +168,7 @@ namespace Ubpa::detail::Reflection_ {
 			}
 #endif // !NDEBUG
 			refl.n2mv[name] = new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) };
-			refl.Regist(name, ReflectionBase::Meta::is_read_only, ReflectionBase::Meta::value_true);
+			refl.Regist(name, ReflectionBase::Meta::read_only, ReflectionBase::Meta::default_value);
 		}
 	};
 

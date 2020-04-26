@@ -57,7 +57,8 @@ namespace Ubpa {
 
 	private:
 		T val;
-		
+
+		auto& operator[](size_t n) noexcept { return val[n]; }
 		Read& operator=(const Read& read) noexcept { val = read.val; return *this; }
 		Read& operator=(Read&& read) noexcept { val = std::move(read.val); return *this; }
 
