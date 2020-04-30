@@ -18,7 +18,7 @@ struct A {
 int main() {
 	
 	Reflection<A>::Instance()
-		.Regist(&A::e, "e");
+		.Register(&A::e, "e");
 
 	A a;
 	a.e = E::eA;

@@ -40,7 +40,7 @@ int main() {
 	A a;
 	
 	Reflection<A>::Instance()
-		.Regist(&A::f, "f");
+		.Register(&A::f, "f");
 
 	cout << Reflection<A>::Instance().Var<float>("f").Of(a) << endl;
 	Reflection<A>::Instance().Var<float>("f").Of(a) = 3.f;

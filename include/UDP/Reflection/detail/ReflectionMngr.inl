@@ -36,13 +36,13 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	void ReflectionMngr::RegistRefl(ReflectionBase* refl) {
+	void ReflectionMngr::RegisterRefl(ReflectionBase* refl) {
 		if constexpr (std::is_polymorphic_v<Obj>)
 			vt2refl[vtable_of<Obj>::get()] = refl;
 	}
 
 	template<typename Func>
-	void ReflectionMngr::RegistConstructor(std::string_view name, Func&& func) {
+	void ReflectionMngr::RegisterConstructor(std::string_view name, Func&& func) {
 		constructors[str(name)] = detail::Reflection_::Pack<FuncTraits_ArgList<Func>>::template run(func);
 	}
 }

@@ -12,20 +12,20 @@ namespace Ubpa {
 			Base::Visit(&(*p));
 		}
 
-		bool IsRegisted(std::shared_ptr<VarPtrBase> p) const {
-			return Base::IsRegisted(&(*p));
+		bool IsRegistered(std::shared_ptr<VarPtrBase> p) const {
+			return Base::IsRegistered(&(*p));
 		}
 
 		template<typename T>
-		bool IsRegisted() const {
-			return Base::template IsRegisted<VarPtr<T>>();
+		bool IsRegistered() const {
+			return Base::template IsRegistered<VarPtr<T>>();
 		}
 
 	protected:
 		// ImplVisit(Ts&)
 		template<typename... Ts>
-		void Regist() noexcept {
-			Base::template Regist<VarPtr<Ts>...>();
+		void Register() noexcept {
+			Base::template Register<VarPtr<Ts>...>();
 		}
 
 	// ================================================================================

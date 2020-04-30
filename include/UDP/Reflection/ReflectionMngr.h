@@ -21,10 +21,10 @@ namespace Ubpa {
 		friend struct Reflection;
 
 		template<typename Obj>
-		void RegistRefl(ReflectionBase* refl);
+		void RegisterRefl(ReflectionBase* refl);
 
 		template<typename Func>
-		void RegistConstructor(std::string_view name, Func&& func);
+		void RegisterConstructor(std::string_view name, Func&& func);
 
 	private:
 		xMap<const void*, ReflectionBase*> vt2refl;

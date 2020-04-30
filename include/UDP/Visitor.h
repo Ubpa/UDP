@@ -26,18 +26,18 @@ namespace Ubpa {
 		// support const and non-const
 		// [const] T* (T is polymophic) with Args...
 		template<typename... Funcs>
-		inline void Regist(Funcs&&... funcs);
+		inline void Register(Funcs&&... funcs);
 		
 		template<typename T>
-		inline bool IsRegisted() const;
+		inline bool IsRegistered() const;
 
 		// ptr is pointed to a [single inheritance] [polymorphic] obj
 		// T is get by ptr's vtable
-		inline bool IsRegisted(const void* ptr) const;
+		inline bool IsRegistered(const void* ptr) const;
 
 	private:
 		template<typename Func>
-		inline void RegistOne(Func&& func);
+		inline void RegisterOne(Func&& func);
 
 	protected:
 		std::unordered_map<const void*, std::function<Ret(void*, Args...)>> callbacks; // vtable -> func
@@ -46,7 +46,7 @@ namespace Ubpa {
 	template<typename Impl, typename Ret, typename... Args>
 	class Visitor<Ret(Impl::*)(Args...)> : private Visitor<Ret(Args...)> {
 	public:
-		using Visitor<Ret(Args...)>::Regist;
+		using Visitor<Ret(Args...)>::Register;
 		
 		inline Ret Visit(void* ptr, Args... args) const;
 		// const_cast<void*>(ptr)
@@ -60,21 +60,21 @@ namespace Ubpa {
 		inline Ret Visit(const T* ptr, Args... args) const;
 
 		template<typename T>
-		inline bool IsRegisted() const;
+		inline bool IsRegistered() const;
 
 		// ptr is pointed to a [single inheritance] [polymorphic] obj
 		// T is get by ptr's vtable
-		inline bool IsRegisted(const void* ptr) const;
+		inline bool IsRegistered(const void* ptr) const;
 
 	protected:
 		// ImplVisit
 		template<typename... Deriveds>
-		void Regist();
+		void Register();
 
 	private:
 		// ImplVisit
 		template<typename Derived>
-		void RegistOne();
+		void RegisterOne();
 
 	protected:
 		struct Accessor;

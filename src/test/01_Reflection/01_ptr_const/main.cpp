@@ -19,8 +19,8 @@ public:
 
 int main() {
 	Reflection<C>::Instance()
-		.Regist(&C::Foo, "Foo")
-		.Regist(&C::Bar, "Bar");
+		.Register(&C::Foo, "Foo")
+		.Register(&C::Bar, "Bar");
 
 	C c{ 3 };
 	const C cc{ 4 };

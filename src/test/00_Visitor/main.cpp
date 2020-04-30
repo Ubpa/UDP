@@ -22,7 +22,7 @@ struct Sphere : IShape {
 
 struct Serializer : Visitor<bool(Serializer::*)(float)> {
 	Serializer() {
-		Regist<Sphere>();
+		Register<Sphere>();
 	}
 
 	bool ImplVisit(const Sphere* sphere, float k) const {
@@ -36,7 +36,7 @@ int main() {
 	Triangle tri;
 	Sphere sphere;
 	Visitor<bool()> visitor;
-	visitor.Regist([](Square* square) -> bool {
+	visitor.Register([](Square* square) -> bool {
 		cout << square->size_len << endl;
 		return true;
 		}, [](Triangle* tri) -> bool {

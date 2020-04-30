@@ -23,11 +23,11 @@ public:
 
 int main() {
 	Reflection<C>::Instance()
-		.Regist(&C::n, "n")
-		.Regist(&C::cn, "cn")
-		.Regist(&C::Foo, "Foo")
-		.Regist(&C::Bar, "Bar")
-		.Regist(&C::Car, "Car");
+		.Register(&C::n, "n")
+		.Register(&C::cn, "cn")
+		.Register(&C::Foo, "Foo")
+		.Register(&C::Bar, "Bar")
+		.Register(&C::Car, "Car");
 
 	C c{ 1 };
 	const C cc{ 3 };

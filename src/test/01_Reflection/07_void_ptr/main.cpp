@@ -17,11 +17,11 @@ struct Point {
 
 int main() {
 	Reflection<Point>::Instance()
-		.Regist(&Point::x, "x")
-		.Regist("x::info", "hello")
-		.Regist(&Point::y, "y")
-		.Regist("y::info", "hello")
-		.RegistConstructor([](float x, float y) {
+		.Register(&Point::x, "x")
+		.Register("x::info", "hello")
+		.Register(&Point::y, "y")
+		.Register("y::info", "hello")
+		.RegisterConstructor([](float x, float y) {
 			return new Point(x, y);
 		});
 

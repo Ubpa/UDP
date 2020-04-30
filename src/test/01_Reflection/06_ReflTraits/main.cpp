@@ -20,7 +20,7 @@ struct Lipglaze : Cosmetics { std::array<float, 3> color{ 0.9f,0.1f,0.1f }; };
 class VarSerializer : public VarPtrVisitor<VarSerializer>, public ReflTraitsVisitor {
 public:
 	VarSerializer() {
-		VarPtrVisitor<VarSerializer>::Regist<
+		VarPtrVisitor<VarSerializer>::Register<
 			float,
 			const int,
 			//const int*,
@@ -28,7 +28,7 @@ public:
 			array<float, 3>>();
 	}
 
-	using VarPtrVisitor<VarSerializer>::Regist;
+	using VarPtrVisitor<VarSerializer>::Register;
 	using ReflTraitsVisitor::Visit;
 
 protected:
@@ -50,7 +50,7 @@ private:
 		cout << "{" << endl;
 		cout << "  \"type\": \"" << name << "\"" << endl;
 		for (auto [n, v] : refl.VarPtrs(obj)) {
-			if (VarPtrVisitor<VarSerializer>::IsRegisted(v)) {
+			if (VarPtrVisitor<VarSerializer>::IsRegistered(v)) {
 				cout << "  \"" << n << "\"" << ": ";
 				VarPtrVisitor<VarSerializer>::Visit(v);
 				cout << endl;
@@ -62,22 +62,22 @@ private:
 
 int main() {
 	Reflection<Sphere>::Instance()
-		.Regist(&Sphere::radius, NAMEOF(&Sphere::radius).c_str())
-		.Regist(&Sphere::pi, NAMEOF(&Sphere::pi).c_str());
+		.Register(&Sphere::radius, NAMEOF(&Sphere::radius).c_str())
+		.Register(&Sphere::pi, NAMEOF(&Sphere::pi).c_str());
 
 	Reflection<Square>::Instance()
-		.Regist(&Square::sideLength, NAMEOF(&Square::sideLength).c_str());
+		.Register(&Square::sideLength, NAMEOF(&Square::sideLength).c_str());
 
 	Reflection<Lipstick>::Instance()
-		.Regist(&Lipstick::name, NAMEOF(&Lipstick::name).c_str());
+		.Register(&Lipstick::name, NAMEOF(&Lipstick::name).c_str());
 
 	Reflection<Lipglaze>::Instance()
-		.Regist(&Lipglaze::color, NAMEOF(&Lipglaze::color).c_str());
+		.Register(&Lipglaze::color, NAMEOF(&Lipglaze::color).c_str());
 
 	VarSerializer vs;
 	ReflTraitsIniter::Instance().Init(vs);
 
-	/*vs.Regist([](const int& v) {
+	/*vs.Register([](const int& v) {
 		cout << v;
 	});*/
 

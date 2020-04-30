@@ -51,13 +51,13 @@ struct Reflection {
     }
     
     template<typename T>
-    Reflection& Regist(T Obj::* ptr, const string& name) {
+    Reflection& Register(T Obj::* ptr, const string& name) {
         n2mv[name] = new MemVar<T Obj::*>{ptr};
         return *this;
     }
     
     template<typename Ret, typename... Args>
-    Reflection& Regist(Ret(Obj::*func)(Args...), const string& name) {
+    Reflection& Register(Ret(Obj::*func)(Args...), const string& name) {
         n2mf[name] = new MemFunc<Ret(Obj::*)(Args...)>(func);
         return *this;
     }
@@ -87,9 +87,9 @@ struct Point {
 
 int main() {
     Reflection<Point>::Instance()
-        .Regist(&Point::x, "x")
-        .Regist(&Point::y, "y")
-        .Regist(&Point::Add, "Add");
+        .Register(&Point::x, "x")
+        .Register(&Point::y, "y")
+        .Register(&Point::Add, "Add");
     Point p;
     Reflection<Point>::Instance().Var<float>("x").Of(p) = 2.f;
     Reflection<Point>::Instance().Var<float>("y").Of(p) = 3.f;

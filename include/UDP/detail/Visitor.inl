@@ -2,6 +2,9 @@
 
 #include "../Basic/vtable.h"
 
+// not necessary
+#include "../Visitor.h"
+
 #include <UTemplate/Func.h>
 #include <UTemplate/Concept.h>
 
@@ -13,7 +16,7 @@ namespace Ubpa::detail::Visitor_ {
 namespace Ubpa {
 	template<typename Ret, typename... Args>
 	Ret Visitor<Ret(Args...)>::Visit(void* ptr, Args... args) const {
-		assert("ERROR::Visitor::Visit: not registed" && IsRegisted(ptr));
+		assert("ERROR::Visitor::Visit: not registed" && IsRegistered(ptr));
 		return callbacks.find(vtable(ptr))->second(ptr, std::forward<Args>(args)...);
 	}
 
@@ -37,17 +40,17 @@ namespace Ubpa {
 
 	template<typename Ret, typename... Args>
 	template<typename... Funcs>
-	void Visitor<Ret(Args...)>::Regist(Funcs&&... funcs) {
-		(RegistOne(std::forward<Funcs>(funcs)), ...);
+	void Visitor<Ret(Args...)>::Register(Funcs&&... funcs) {
+		(RegisterOne(std::forward<Funcs>(funcs)), ...);
 	}
 
 	template<typename Ret, typename... Args>
 	template<typename Func>
-	void Visitor<Ret(Args...)>::RegistOne(Func&& func) {
+	void Visitor<Ret(Args...)>::RegisterOne(Func&& func) {
 		using ArgList = FuncTraits_ArgList<Func>;
 		using DerivedPointer = Front_t<ArgList>;
 		static_assert(std::is_same_v<TypeList<DerivedPointer, Args...>, ArgList>,
-			"Visitor::RegistOne: arguments must be ([const] T*, Args...)");
+			"Visitor::RegisterOne: arguments must be ([const] T*, Args...)");
 
 		using Derived = std::remove_pointer_t<DerivedPointer>; // [const] T
 
@@ -60,16 +63,16 @@ namespace Ubpa {
 
 	template<typename Ret, typename... Args>
 	template<typename T>
-	bool Visitor<Ret(Args...)>::IsRegisted() const {
+	bool Visitor<Ret(Args...)>::IsRegistered() const {
 		static_assert(std::is_polymorphic_v<std::decay_t<T>>,
-			"Visitor::IsRegisted: T isn't polymorphic");
+			"Visitor::IsRegistered: T isn't polymorphic");
 
 		const void* key = vtable_of<std::decay_t<T>>::get();
 		return callbacks.find(key) != callbacks.end();
 	}
 
 	template<typename Ret, typename... Args>
-	bool Visitor<Ret(Args...)>::IsRegisted(const void* ptr) const {
+	bool Visitor<Ret(Args...)>::IsRegistered(const void* ptr) const {
 		const void* key = vtable(ptr);
 		return callbacks.find(key) != callbacks.end();
 	}
@@ -91,7 +94,7 @@ namespace Ubpa {
 
 	template<typename Impl, typename Ret, typename... Args>
 	inline Ret Visitor<Ret(Impl::*)(Args...)>::Visit(void* ptr, Args... args) const {
-		assert("ERROR::Visitor::Visit: not registed" && IsRegisted(ptr));
+		assert("ERROR::Visitor::Visit: not registed" && IsRegistered(ptr));
 		auto key = vtable(ptr);
 		auto target = impl_callbacks.find(key);
 		if (target != impl_callbacks.end())
@@ -118,13 +121,13 @@ namespace Ubpa {
 
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename... Deriveds>
-	void Visitor<Ret(Impl::*)(Args...)>::Regist() {
-		(RegistOne<Deriveds>(), ...);
+	void Visitor<Ret(Impl::*)(Args...)>::Register() {
+		(RegisterOne<Deriveds>(), ...);
 	}
 
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename Derived>
-	void Visitor<Ret(Impl::*)(Args...)>::RegistOne() {
+	void Visitor<Ret(Impl::*)(Args...)>::RegisterOne() {
 		auto key = vtable_of<Derived>::get();
 		if constexpr (Require<detail::Visitor_::HaveImplVisit, Impl, Ret(Derived*, Args...)>) {
 			impl_callbacks[key] = [](Impl* impl, void* ptr, Args... args) {
@@ -147,20 +150,20 @@ namespace Ubpa {
 			};
 		}
 		else {
-			static_assert(false, "Visitor::RegistOne: no correct member function ImplVisit");
+			static_assert(false, "Visitor::RegisterOne: no correct member function ImplVisit");
 		}
 	}
 
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename T>
-	inline bool Visitor<Ret(Impl::*)(Args...)>::IsRegisted() const {
+	inline bool Visitor<Ret(Impl::*)(Args...)>::IsRegistered() const {
 		auto key = vtable_of<T>::get();
 		return impl_callbacks.find(key) != impl_callbacks.end()
 			|| this->callbacks.find(key) != this->callbacks.end();
 	}
 
 	template<typename Impl, typename Ret, typename... Args>
-	inline bool Visitor<Ret(Impl::*)(Args...)>::IsRegisted(const void* ptr) const {
+	inline bool Visitor<Ret(Impl::*)(Args...)>::IsRegistered(const void* ptr) const {
 		auto key = vtable(ptr);
 		return impl_callbacks.find(key) != impl_callbacks.end()
 			|| this->callbacks.find(key) != this->callbacks.end();

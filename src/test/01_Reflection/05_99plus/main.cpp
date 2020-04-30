@@ -88,7 +88,7 @@ struct ReflMngr {
 private:
     template<typename Obj> friend struct Reflection;
     template<typename Obj>
-    void Regist(ReflectionBase* refl) { vtable2Refl[vtable_of<Obj>::get()] = refl; }
+    void Register(ReflectionBase* refl) { vtable2Refl[vtable_of<Obj>::get()] = refl; }
     map<const void*, ReflectionBase*> vtable2Refl;
     ReflMngr() = default;
 };
@@ -101,13 +101,13 @@ struct Reflection : ReflectionBase {
     }
 
     template<typename T>
-    Reflection& Regist(T Obj::* ptr, const string& name) {
+    Reflection& Register(T Obj::* ptr, const string& name) {
         n2mv[name] = new MemVar<Obj, T>{ ptr };
         return *this;
     }
 
     template<typename Ret, typename... Args>
-    Reflection& Regist(Ret(Obj::* func)(Args...), const string& name) {
+    Reflection& Register(Ret(Obj::* func)(Args...), const string& name) {
         n2mf[name] = new MemFunc<Obj, Ret, Args...>(func);
         return *this;
     }
@@ -133,7 +133,7 @@ struct Reflection : ReflectionBase {
 private:
     map<string, MemVarBase<Obj>*> n2mv;
     map<string, MemFuncBase<Obj>*> n2mf;
-    Reflection() { ReflMngr::Instance().Regist<Obj>(this); }
+    Reflection() { ReflMngr::Instance().Register<Obj>(this); }
 };
 
 struct Point {
@@ -145,9 +145,9 @@ struct Point {
 
 int main() {
     Reflection<Point>::Instance()
-        .Regist(&Point::x, "x")
-        .Regist(&Point::y, "y")
-        .Regist(&Point::Add, "Add");
+        .Register(&Point::x, "x")
+        .Register(&Point::y, "y")
+        .Register(&Point::Add, "Add");
 
     Point p;
     Reflection<Point>::Instance().Var<float>("x").Of(p) = 1.f;

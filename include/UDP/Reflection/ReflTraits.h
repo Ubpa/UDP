@@ -37,10 +37,10 @@ namespace Ubpa {
 		}
 
 		template<typename T>
-		void Regist() {
+		void Register() {
 			if constexpr (std::is_polymorphic_v<T>) {
 				inits.push_back([](ReflTraitsVisitor& visitor) {
-					visitor.Regist<T>();
+					visitor.Register<T>();
 				});
 			}
 		}

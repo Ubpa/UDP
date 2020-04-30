@@ -16,8 +16,8 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::RegistConstructor() {
-		ReflectionMngr::Instance().RegistConstructor(Name(), []() -> void* {
+	Reflection<Obj>& Reflection<Obj>::RegisterConstructor() {
+		ReflectionMngr::Instance().RegisterConstructor(Name(), []() -> void* {
 			return reinterpret_cast<void*>(new Obj);
 		});
 		return *this;
@@ -25,27 +25,27 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename Func>
-	Reflection<Obj>& Reflection<Obj>::RegistConstructor(Func&& func) {
-		ReflectionMngr::Instance().RegistConstructor(Name(), std::forward<Func>(func));
+	Reflection<Obj>& Reflection<Obj>::RegisterConstructor(Func&& func) {
+		ReflectionMngr::Instance().RegisterConstructor(Name(), std::forward<Func>(func));
 		return *this;
 	}
 
 	template<typename Obj>
 	template<typename T>
-	Reflection<Obj>& Reflection<Obj>::Regist(T Obj::* ptr, const std::string& name) noexcept {
-		detail::Reflection_::Regist<T Obj::*>::run(*this, ptr, name);
+	Reflection<Obj>& Reflection<Obj>::Register(T Obj::* ptr, const std::string& name) noexcept {
+		detail::Reflection_::Register<T Obj::*>::run(*this, ptr, name);
 		return *this;
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::Regist(const std::string& key, const std::string& value) noexcept {
+	Reflection<Obj>& Reflection<Obj>::Register(const std::string& key, const std::string& value) noexcept {
 		metamap[key] = value;
 		return *this;
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::Regist(const std::string& field, const std::string& kind, const std::string& value) noexcept {
-		Regist(field + "::" + kind, value);
+	Reflection<Obj>& Reflection<Obj>::Register(const std::string& field, const std::string& kind, const std::string& value) noexcept {
+		Register(field + "::" + kind, value);
 		return *this;
 	}
 
@@ -113,12 +113,12 @@ namespace Ubpa {
 
 namespace Ubpa::detail::Reflection_ {
 	template<typename Obj, typename Ret, typename... Args>
-	struct Regist<Ret(Obj::*)(Args...)> {
+	struct Register<Ret(Obj::*)(Args...)> {
 		using Func = Ret(Args...);
 		static void run(Reflection<Obj>& refl, Func Obj::* ptr, const std::string& name) {
 #ifndef NDEBUG
 			if (refl.n2mf.find(name) != refl.n2mf.end()) {
-				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
@@ -127,12 +127,12 @@ namespace Ubpa::detail::Reflection_ {
 	};
 
 	template<typename Obj, typename Ret, typename... Args>
-	struct Regist<Ret(Obj::*)(Args...) const> {
+	struct Register<Ret(Obj::*)(Args...) const> {
 		using Func = Ret(Args...) const;
 		static void run(Reflection<Obj>& refl, Func Obj::* ptr, const std::string& name) {
 #ifndef NDEBUG
 			if (refl.n2mcf.find(name) != refl.n2mcf.end()) {
-				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
@@ -141,11 +141,11 @@ namespace Ubpa::detail::Reflection_ {
 	};
 
 	template<typename Obj, typename T>
-	struct Regist<T Obj::*> {
+	struct Register<T Obj::*> {
 		static void run(Reflection<Obj>& refl, T Obj::* ptr, const std::string& name) {
 #ifndef NDEBUG
 			if (refl.n2mv.find(name) != refl.n2mv.end()) {
-				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
@@ -159,16 +159,16 @@ namespace Ubpa::detail::Reflection_ {
 	};
 
 	template<typename Obj, typename T>
-	struct Regist<Read<Obj, T> Obj::*> {
+	struct Register<Read<Obj, T> Obj::*> {
 		static void run(Reflection<Obj>& refl, Read<Obj, T> Obj::* ptr, const std::string& name) {
 #ifndef NDEBUG
 			if (refl.n2mv.find(name) != refl.n2mv.end()) {
-				std::cerr << "WARNING::Reflection::Regist:" << std::endl
+				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
 			refl.n2mv[name] = new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) };
-			refl.Regist(name, ReflectionBase::Meta::read_only, ReflectionBase::Meta::default_value);
+			refl.Register(name, ReflectionBase::Meta::read_only, ReflectionBase::Meta::default_value);
 		}
 	};
 

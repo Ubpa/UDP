@@ -12,7 +12,7 @@
 
 namespace Ubpa::detail::Reflection_ {
 	template<typename Mem>
-	struct Regist;
+	struct Register;
 	template<typename Obj, typename RObj, typename Ret, typename... Args>
 	struct Call;
 }
@@ -27,15 +27,15 @@ namespace Ubpa {
 		constexpr std::string_view Name() noexcept { return nameof::nameof_type<Obj>(); }
 
 		// call after SetName()
-		Reflection& RegistConstructor();
+		Reflection& RegisterConstructor();
 		template<typename Func>
-		Reflection& RegistConstructor(Func&& func);
+		Reflection& RegisterConstructor(Func&& func);
 
 		// member variable pointer, member function pointer
 		template<typename T>
-		Reflection& Regist(T Obj::* ptr, const std::string& name) noexcept;
-		Reflection& Regist(const std::string& key, const std::string& value) noexcept;
-		Reflection& Regist(const std::string& field, const std::string& kind, const std::string& value) noexcept;
+		Reflection& Register(T Obj::* ptr, const std::string& name) noexcept;
+		Reflection& Register(const std::string& key, const std::string& value) noexcept;
+		Reflection& Register(const std::string& field, const std::string& kind, const std::string& value) noexcept;
 
 		virtual const std::string Meta(const std::string& key) const noexcept override;
 		virtual const xMap<std::string, std::string> Metas() const noexcept override { return metamap; }
@@ -66,14 +66,14 @@ namespace Ubpa {
 		xMap<std::string, std::string> metamap;
 
 		Reflection() {
-			ReflTraitsIniter::Instance().Regist<Obj>();
-			ReflectionMngr::Instance().RegistRefl<Obj>(this);
+			ReflTraitsIniter::Instance().Register<Obj>();
+			ReflectionMngr::Instance().RegisterRefl<Obj>(this);
 			if constexpr (std::is_constructible_v<Obj>)
-				RegistConstructor();
+				RegisterConstructor();
 		}
 
 		template<typename Mem>
-		friend struct detail::Reflection_::Regist;
+		friend struct detail::Reflection_::Register;
 		template<typename Obj, typename RObj, typename Ret, typename... Args>
 		friend struct detail::Reflection_::Call;
 	};

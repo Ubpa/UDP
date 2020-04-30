@@ -17,11 +17,11 @@ struct Point {
 
 int main() {
 	Reflection<Point>::Instance()
-		.Regist(&Point::x, NAMEOF(Point::x).c_str())
-		.Regist(&Point::y, NAMEOF(Point::y).c_str())
-		.Regist(string(NAMEOF(Point::x).c_str()) + "::is_reflect", "false")
-		.Regist(string(NAMEOF(Point::x).c_str()) + "::info", "haha")
-		.Regist(&Point::test, NAMEOF(&Point::test).c_str());
+		.Register(&Point::x, NAMEOF(Point::x).c_str())
+		.Register(&Point::y, NAMEOF(Point::y).c_str())
+		.Register(string(NAMEOF(Point::x).c_str()) + "::is_reflect", "false")
+		.Register(string(NAMEOF(Point::x).c_str()) + "::info", "haha")
+		.Register(&Point::test, NAMEOF(&Point::test).c_str());
 
 	Point p;
 	Reflection<Point>::Instance().Var<float>(NAMEOF(Point::x).c_str()).Of(p) = 3;
