@@ -33,15 +33,16 @@ namespace Ubpa {
 
 		// member variable pointer, member function pointer
 		template<typename T>
-		Reflection& Register(T Obj::* ptr, const std::string& name) noexcept;
-		Reflection& Register(const std::string& key, const std::string& value) noexcept;
-		Reflection& Register(const std::string& field, const std::string& kind, const std::string& value) noexcept;
+		Reflection& Register(T Obj::* ptr, std::string_view name) noexcept;
+		Reflection& Register(std::string_view key, std::string_view value) noexcept;
+		Reflection& Register(std::string_view field, std::string_view kind, std::string_view value) noexcept;
 
-		virtual const std::string Meta(const std::string& key) const noexcept override;
-		virtual const xMap<std::string, std::string> Metas() const noexcept override { return metamap; }
+		virtual const std::string Meta(std::string_view key) const noexcept override;
+		virtual const xMap<std::string, std::string>& Metas() const noexcept override { return metamap; }
+		virtual const std::string FieldMeta(std::string_view field, std::string_view kind) const noexcept override;
 
 		template<typename U>
-		MemVar<U Obj::*> Var(const std::string& name) const noexcept;
+		MemVar<U Obj::*> Var(std::string_view name) const noexcept;
 
 		xMap<std::string, MemVarBase<Obj>*> Vars() const noexcept;
 
@@ -49,7 +50,7 @@ namespace Ubpa {
 		xMap<std::string, std::shared_ptr<const VarPtrBase>> VarPtrs(const Obj& obj) const noexcept;
 
 		template<typename Ret = void, typename RObj, typename... Args>
-		Ret Call(const std::string& name, RObj&& obj, Args&&... args);
+		Ret Call(std::string_view name, RObj&& obj, Args&&... args);
 
 		xMap<std::string, MemFuncBase<Obj>*> Funcs() const noexcept { return n2mf; }
 

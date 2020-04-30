@@ -32,25 +32,25 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename T>
-	Reflection<Obj>& Reflection<Obj>::Register(T Obj::* ptr, const std::string& name) noexcept {
+	Reflection<Obj>& Reflection<Obj>::Register(T Obj::* ptr, std::string_view name) noexcept {
 		detail::Reflection_::Register<T Obj::*>::run(*this, ptr, name);
 		return *this;
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::Register(const std::string& key, const std::string& value) noexcept {
-		metamap[key] = value;
+	Reflection<Obj>& Reflection<Obj>::Register(std::string_view key, std::string_view value) noexcept {
+		metamap.emplace(key, value);
 		return *this;
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::Register(const std::string& field, const std::string& kind, const std::string& value) noexcept {
-		Register(field + "::" + kind, value);
+	Reflection<Obj>& Reflection<Obj>::Register(std::string_view field, std::string_view kind, std::string_view value) noexcept {
+		metamap.try_emplace(std::string(field) + "::" + kind.data(), value);
 		return *this;
 	}
 
 	template<typename Obj>
-	const std::string Reflection<Obj>::Meta(const std::string& key) const noexcept {
+	const std::string Reflection<Obj>::Meta(std::string_view key) const noexcept {
 		auto target = metamap.find(key);
 		if (target == metamap.end())
 			return "";
@@ -59,8 +59,17 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
+	const std::string Reflection<Obj>::FieldMeta(std::string_view field, std::string_view kind) const noexcept {
+		auto target = metamap.find(std::string(field) + "::" + kind.data());
+		if (target == metamap.end())
+			return "";
+		else
+			return target->second;
+	}
+
+	template<typename Obj>
 	template<typename U>
-	MemVar<U Obj::*> Reflection<Obj>::Var(const std::string& name) const noexcept {
+	MemVar<U Obj::*> Reflection<Obj>::Var(std::string_view name) const noexcept {
 		auto target = n2mv.find(name);
 		if (target != n2mv.end())
 			return target->second->As<U>();
@@ -106,7 +115,7 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename Ret, typename RObj, typename... Args>
-	Ret Reflection<Obj>::Call(const std::string& name, RObj&& obj, Args&&... args) {
+	Ret Reflection<Obj>::Call(std::string_view name, RObj&& obj, Args&&... args) {
 		return detail::Reflection_::Call<Obj, RObj, Ret, Args...>::run(*this, name, std::forward<RObj>(obj), std::forward<Args>(args)...);
 	}
 }
@@ -115,34 +124,34 @@ namespace Ubpa::detail::Reflection_ {
 	template<typename Obj, typename Ret, typename... Args>
 	struct Register<Ret(Obj::*)(Args...)> {
 		using Func = Ret(Args...);
-		static void run(Reflection<Obj>& refl, Func Obj::* ptr, const std::string& name) {
+		static void run(Reflection<Obj>& refl, Func Obj::* ptr, std::string_view name) {
 #ifndef NDEBUG
 			if (refl.n2mf.find(name) != refl.n2mf.end()) {
 				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mf[name] = new MemFunc<Func Obj::*>{ ptr };
+			refl.n2mf.emplace(name, new MemFunc<Func Obj::*>{ ptr });
 		}
 	};
 
 	template<typename Obj, typename Ret, typename... Args>
 	struct Register<Ret(Obj::*)(Args...) const> {
 		using Func = Ret(Args...) const;
-		static void run(Reflection<Obj>& refl, Func Obj::* ptr, const std::string& name) {
+		static void run(Reflection<Obj>& refl, Func Obj::* ptr, std::string_view name) {
 #ifndef NDEBUG
 			if (refl.n2mcf.find(name) != refl.n2mcf.end()) {
 				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mcf[name] = new MemFunc<Func Obj::*>{ ptr };
+			refl.n2mcf.emplace(name, new MemFunc<Func Obj::*>{ ptr });
 		}
 	};
 
 	template<typename Obj, typename T>
 	struct Register<T Obj::*> {
-		static void run(Reflection<Obj>& refl, T Obj::* ptr, const std::string& name) {
+		static void run(Reflection<Obj>& refl, T Obj::* ptr, std::string_view name) {
 #ifndef NDEBUG
 			if (refl.n2mv.find(name) != refl.n2mv.end()) {
 				std::cerr << "WARNING::Reflection::Register:" << std::endl
@@ -151,23 +160,23 @@ namespace Ubpa::detail::Reflection_ {
 #endif // !NDEBUG
 			if constexpr (std::is_enum_v<T>) {
 				// enum is treated as int
-				refl.n2mv[name] = new MemVar<int Obj::*>{ reinterpret_cast<int Obj::*>(ptr) };
+				refl.n2mv.emplace(name, new MemVar<int Obj::*>{ reinterpret_cast<int Obj::*>(ptr) });
 			}
 			else
-				refl.n2mv[name] = new MemVar<T Obj::*>{ ptr };
+				refl.n2mv.emplace(name, new MemVar<T Obj::*>{ ptr });
 		}
 	};
 
 	template<typename Obj, typename T>
 	struct Register<Read<Obj, T> Obj::*> {
-		static void run(Reflection<Obj>& refl, Read<Obj, T> Obj::* ptr, const std::string& name) {
+		static void run(Reflection<Obj>& refl, Read<Obj, T> Obj::* ptr, std::string_view name) {
 #ifndef NDEBUG
 			if (refl.n2mv.find(name) != refl.n2mv.end()) {
 				std::cerr << "WARNING::Reflection::Register:" << std::endl
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			refl.n2mv[name] = new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) };
+			refl.n2mv.emplace(name, new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) });
 			refl.Register(name, ReflectionBase::Meta::read_only, ReflectionBase::Meta::default_value);
 		}
 	};
@@ -175,7 +184,7 @@ namespace Ubpa::detail::Reflection_ {
 	// default case
 	template<typename Obj, typename PtrObj, typename Ret, typename... Args>
 	struct Call {
-		static Ret run(Reflection<Obj>& refl, const std::string& name, PtrObj&& obj, Args&&... args) {
+		static Ret run(Reflection<Obj>& refl, std::string_view name, PtrObj&& obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
 				return target_mf->second->template Call<Ret>(*obj, std::forward<Args>(args)...);
@@ -193,7 +202,7 @@ namespace Ubpa::detail::Reflection_ {
 
 	template<typename Obj, typename Ret, typename... Args>
 	struct Call<Obj, Obj, Ret, Args...> {
-		static Ret run(Reflection<Obj>& refl, const std::string& name, Obj obj, Args&&... args) {
+		static Ret run(Reflection<Obj>& refl, std::string_view name, Obj obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
 				return target_mf->second->template Call<Ret>(obj, std::forward<Args>(args)...);
@@ -211,7 +220,7 @@ namespace Ubpa::detail::Reflection_ {
 
 	template<typename Obj, typename Ret, typename... Args>
 	struct Call<Obj, Obj&&, Ret, Args...> {
-		static Ret run(Reflection<Obj>& refl, const std::string& name, Obj&& obj, Args&&... args) {
+		static Ret run(Reflection<Obj>& refl, std::string_view name, Obj&& obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
 				return target_mf->second->template Call<Ret>(obj, std::forward<Args>(args)...);
@@ -229,7 +238,7 @@ namespace Ubpa::detail::Reflection_ {
 
 	template<typename Obj, typename Ret, typename... Args>
 	struct Call<Obj, Obj&, Ret, Args...> {
-		static Ret run(Reflection<Obj>& refl, const std::string& name, Obj& obj, Args&&... args) {
+		static Ret run(Reflection<Obj>& refl, std::string_view name, Obj& obj, Args&&... args) {
 			auto target_mf = refl.n2mf.find(name);
 			if (target_mf != refl.n2mf.end())
 				return target_mf->second->template Call<Ret>(obj, std::forward<Args>(args)...);
@@ -247,7 +256,7 @@ namespace Ubpa::detail::Reflection_ {
 
 	template<typename Obj, typename Ret, typename... Args>
 	struct Call<Obj, const Obj&, Ret, Args...> {
-		static Ret run(Reflection<Obj>& refl, const std::string& name, const Obj& obj, Args&&... args) {
+		static Ret run(Reflection<Obj>& refl, std::string_view name, const Obj& obj, Args&&... args) {
 			auto target_mfc = refl.n2mcf.find(name);
 			if (target_mfc != refl.n2mcf.end())
 				return target_mfc->second->template Call<Ret>(obj, std::forward<Args>(args)...);
