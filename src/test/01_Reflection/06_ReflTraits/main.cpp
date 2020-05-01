@@ -17,10 +17,10 @@ struct Cosmetics { virtual ~Cosmetics() = default; };
 struct Lipstick : Cosmetics { string name{ "mac" }; };
 struct Lipglaze : Cosmetics { std::array<float, 3> color{ 0.9f,0.1f,0.1f }; };
 
-class VarSerializer : public VarPtrVisitor<VarSerializer>, public ReflTraitsVisitor {
+class VarSerializer : public VarPtrVisitor<void(VarSerializer::*)()>, public ReflTraitsVisitor {
 public:
 	VarSerializer() {
-		VarPtrVisitor<VarSerializer>::Register<
+		VarPtrVisitor<void(VarSerializer::*)()>::Register<
 			float,
 			const int,
 			//const int*,
@@ -28,7 +28,7 @@ public:
 			array<float, 3>>();
 	}
 
-	using VarPtrVisitor<VarSerializer>::Register;
+	using VarPtrVisitor<void(VarSerializer::*)()>::Register;
 	using ReflTraitsVisitor::Visit;
 
 protected:
@@ -50,9 +50,9 @@ private:
 		cout << "{" << endl;
 		cout << "  \"type\": \"" << name << "\"" << endl;
 		for (auto [n, v] : refl.VarPtrs(obj)) {
-			if (VarPtrVisitor<VarSerializer>::IsRegistered(v)) {
+			if (VarPtrVisitor<void(VarSerializer::*)()>::IsRegistered(v)) {
 				cout << "  \"" << n << "\"" << ": ";
-				VarPtrVisitor<VarSerializer>::Visit(v);
+				VarPtrVisitor<void(VarSerializer::*)()>::Visit(v);
 				cout << endl;
 			}
 		}
