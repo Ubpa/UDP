@@ -55,6 +55,6 @@ namespace Ubpa {
 
 	template<typename Impl, typename Ret, typename... Args>
 	bool Visitor<Ret(Impl::*)(void*, Args...)const>::IsRegistered(const void* ptr) const {
-		return IsRegistered(static_cast<size_t>(vtable(ptr)));
+		return IsRegistered(reinterpret_cast<size_t>(vtable(ptr)));
 	}
 }

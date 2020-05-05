@@ -1,4 +1,9 @@
-#include <UDP/Visitor/Visitor.h>
+#include <UDP/Visitor/cVisitor.h>
+#include <UDP/Visitor/ncVisitor.h>
+#include <UDP/Visitor/cicVisitor.h>
+#include <UDP/Visitor/cincVisitor.h>
+#include <UDP/Visitor/ncicVisitor.h>
+#include <UDP/Visitor/ncincVisitor.h>
 
 #include <iostream>
 #include <memory>

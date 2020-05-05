@@ -27,18 +27,21 @@ namespace Ubpa {
 		}
 	}
 
-	ReflectionBase* ReflectionMngr::GetReflction(const void* obj) const {
-		auto target = vt2refl.find(vtable(obj));
-		if (target == vt2refl.end())
+	ReflectionBase* ReflectionMngr::GetReflction(size_t ID) const {
+		auto target = id2refl.find(ID);
+		if (target == id2refl.end())
 			return nullptr;
 
 		return target->second;
 	}
 
+	ReflectionBase* ReflectionMngr::GetReflction(const void* obj) const {
+		return GetReflction(reinterpret_cast<size_t>(vtable(obj)));
+	}
+
 	template<typename Obj>
 	void ReflectionMngr::RegisterRefl(ReflectionBase* refl) {
-		if constexpr (std::is_polymorphic_v<Obj>)
-			vt2refl[vtable_of<Obj>::get()] = refl;
+		id2refl[detail::Visitor_::GetID<Obj>()] = refl;
 	}
 
 	template<typename Func>

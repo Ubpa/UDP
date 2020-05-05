@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(UDP VERSION 0.4.3)
+project(UDP VERSION 0.5.0)
 message(STATUS "[Project] ${PROJECT_NAME}")
 
 message(STATUS "find package: UCMake 0.5.0")

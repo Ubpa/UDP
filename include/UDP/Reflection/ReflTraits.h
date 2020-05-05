@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Visitor.h"
+#include "../Visitor/ncincVisitor.h"
 #include "VarPtr.h"
 
 #include "../Basic/xSTL/xMap.h"
@@ -12,13 +12,13 @@ namespace Ubpa {
 	class ReflTraitsIniter;
 
 	// for ReflTraitsIniter
-	class ReflTraitsVisitor : public Visitor<void(ReflTraitsVisitor::*)()> {
+	class ReflTraitsVisitor : public Visitor<void(ReflTraitsVisitor::*)(void*)> {
 	protected:
 		virtual void Receive(void* obj, std::string_view name, ReflectionBase& refl) = 0;
 
 	private:
 		friend class ReflTraitsIniter;
-		friend struct Visitor<void(ReflTraitsVisitor::*)()>::Accessor;
+		friend struct detail::Visitor_::Accessor<ReflTraitsVisitor>;
 
 		template<typename T>
 		void ImplVisit(T* obj) {

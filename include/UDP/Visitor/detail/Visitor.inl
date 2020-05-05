@@ -8,6 +8,9 @@
 #include <functional>
 
 namespace Ubpa::detail::Visitor_ {
+	template<typename Impl, typename Func>
+	Concept(HaveImplVisit, MemFuncOf<Func>::template run<Impl>(&Impl::ImplVisit));
+
 	template<typename T>
 	static constexpr size_t GetID() {
 		static_assert(!std::is_const_v<T> && !std::is_pointer_v<T>,

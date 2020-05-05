@@ -3,9 +3,6 @@
 #include "Visitor.h"
 
 namespace Ubpa {
-	template<typename Func>
-	class Visitor;
-
 	template<typename Ret, typename... Args>
 	class Visitor<Ret(void*, Args...)> {
 	public:

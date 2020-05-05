@@ -1,7 +1,8 @@
 #pragma once
 
 #include "VarPtr.h"
-#include "../Visitor.h"
+#include "../Visitor/ncVisitor.h"
+#include "../Visitor/cincVisitor.h"
 
 #include <type_traits>
 
@@ -30,7 +31,7 @@ namespace Ubpa {
 		}
 
 	private:
-		Visitor<Ret(Args...)> visitor;
+		Visitor<Ret(void*, Args...)> visitor;
 
 		// lambda(Ts&, Args...)
 		template<typename Func>
@@ -40,9 +41,9 @@ namespace Ubpa {
 
 	template<typename Impl, typename Ret, typename... Args>
 	class VarPtrVisitor<Ret(Impl::*)(Args...)>
-		: protected Visitor<Ret(VarPtrVisitor<Ret(Impl::*)(Args...)>::*)(Args...)>
+		: protected Visitor<Ret(VarPtrVisitor<Ret(Impl::*)(Args...)>::*)(void*, Args...)const>
 	{
-		using Base = Visitor<Ret(VarPtrVisitor<Ret(Impl::*)(Args...)>::*)(Args...)>;
+		using Base = Visitor<Ret(VarPtrVisitor<Ret(Impl::*)(Args...)>::*)(void*, Args...)const>;
 	public:
 		Ret Visit(std::shared_ptr<VarPtrBase> p, Args... args) const {
 			return Base::Visit(&(*p), std::forward<Args>(args)...);
@@ -65,7 +66,7 @@ namespace Ubpa {
 		}
 
 	private:
-		friend struct Base::Accessor;
+		friend struct detail::Visitor_::Accessor<VarPtrVisitor>;
 
 		struct Accessor;
 
