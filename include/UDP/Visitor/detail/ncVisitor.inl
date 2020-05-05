@@ -9,7 +9,6 @@ namespace Ubpa {
 
 	template<typename Ret, typename... Args>
 	Ret Visitor<Ret(void*, Args...)>::Visit(size_t ID, void* ptr, Args... args) const {
-		assert("ERROR::Visitor::Visit: unregistered" && IsRegistered(ID));
 		return callbacks.find(ID)->second(ptr, std::forward<Args>(args)...);
 	}
 

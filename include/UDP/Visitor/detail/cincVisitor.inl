@@ -13,7 +13,6 @@ namespace Ubpa {
 
 	template<typename Impl, typename Ret, typename... Args>
 	Ret Visitor<Ret(Impl::*)(void*, Args...)const>::Visit(void* ptr, Args... args) const {
-		assert("ERROR::Visitor::Visit: unregistered" && IsRegistered(ptr));
 		return Visit(reinterpret_cast<size_t>(vtable(ptr)), ptr, std::forward<Args>(args)...);
 	}
 
