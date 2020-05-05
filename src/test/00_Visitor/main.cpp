@@ -1,4 +1,4 @@
-#include <UDP/Visitor.h>
+#include <UDP/Visitor/Visitor.h>
 
 #include <iostream>
 #include <memory>
@@ -8,50 +8,122 @@ using namespace std;
 
 struct IShape { virtual ~IShape() = default; };
 
-struct Triangle : IShape {
-	size_t indices[3]{ 1,2,3 };
-};
-
-struct Square : IShape {
-	float size_len{ 1.f };
-};
-
-struct Sphere : IShape {
-	float radius{ 1.f };
-};
-
-struct Serializer : Visitor<bool(Serializer::*)(float)> {
-	Serializer() {
-		Register<Sphere>();
-	}
-
-	bool ImplVisit(const Sphere* sphere, float k) const {
-		cout << k * sphere->radius << endl;
-		return true;
-	}
-};
+struct Triangle : IShape {};
+struct Sphere : IShape {};
 
 int main() {
-	Square square;
-	Triangle tri;
-	Sphere sphere;
-	Visitor<bool()> visitor;
-	visitor.Register([](Square* square) -> bool {
-		cout << square->size_len << endl;
-		return true;
-		}, [](Triangle* tri) -> bool {
-			cout << tri->indices[0] << ", "
-				<< tri->indices[1] << ", "
-				<< tri->indices[2] << endl;
-			return false;
-		});
+	{ // non const
+		Visitor<void(void*)> visitor;
+		auto visit_tri = [](Triangle*) { cout << "Lambda(Triangle*)" << endl; };
+		auto visit_sphere = [](Sphere*) { cout << "Lambda(Sphere*)" << endl; };
+		visitor.Register(visit_tri, visit_sphere);
+		Triangle tri;
+		Sphere sphere;
+		void* s0 = &tri;
+		void* s1 = &sphere;
+		visitor.Visit(s0);
+		visitor.Visit(s1);
+	}
+	{ // const
+		Visitor<void(const void*)> visitor;
+		auto visit_tri = [](const Triangle*) { cout << "Lambda(const Triangle*)" << endl; };
+		auto visit_sphere = [](const Sphere*) { cout << "Lambda(const Sphere*)" << endl; };
+		visitor.Register(visit_tri, visit_sphere);
+		Triangle tri;
+		Sphere sphere;
+		void* s0 = &tri;
+		void* s1 = &sphere;
+		visitor.Visit(s0);
+		visitor.Visit(s1);
+	}
+	{ // non const Impl non const ptr
+		class V : public Visitor<void(V::*)(void*)> {
+		public:
+			V() {
+				Register<Triangle>();
+			}
+		protected:
+			void ImplVisit(Triangle*) {
+				cout << "V::ImplVisit(Triangle*)" << endl;
+			}
+		};
+		
 
-	visitor.Visit(&square);
-	visitor.Visit(&tri);
-	// visitor.Visit(&sphere); // assert
+		V visitor;
+		auto visit_sphere = [](Sphere*) { cout << "Lambda(Sphere*)" << endl; };
+		visitor.Register(visit_sphere);
+		Triangle tri;
+		Sphere sphere;
+		void* s0 = &tri;
+		void* s1 = &sphere;
+		visitor.Visit(s0);
+		visitor.Visit(s1);
+	}
+	{ // non const Impl const ptr
+		class V : public Visitor<void(V::*)(const void*)> {
+		public:
+			V() {
+				Register<Triangle>();
+			}
+		protected:
+			void ImplVisit(const Triangle*) {
+				cout << "V::ImplVisit(const Triangle*)" << endl;
+			}
+		};
 
-	visitor.Visit(reinterpret_cast<void*>(&square));
+		V visitor;
+		auto visit_sphere = [](const Sphere*) { cout << "Lambda(const Sphere*)" << endl; };
+		visitor.Register(visit_sphere);
+		Triangle tri;
+		Sphere sphere;
+		void* s0 = &tri;
+		void* s1 = &sphere;
+		visitor.Visit(s0);
+		visitor.Visit(s1);
+	}
+	{ // const Impl non const ptr
+		class V : public Visitor<void(V::*)(void*)const> {
+		public:
+			V() {
+				Register<Triangle>();
+			}
+		protected:
+			void ImplVisit(Triangle*) const {
+				cout << "(const V)::ImplVisit(Triangle*)" << endl;
+			}
+		};
 
-	const Serializer serializer;
-	serializer.Visit(&sphere, 2.f);
+
+		V visitor;
+		auto visit_sphere = [](Sphere*) { cout << "Lambda(Sphere*)" << endl; };
+		visitor.Register(visit_sphere);
+		Triangle tri;
+		Sphere sphere;
+		void* s0 = &tri;
+		void* s1 = &sphere;
+		visitor.Visit(s0);
+		visitor.Visit(s1);
+	}
+	{ // const Impl const ptr
+		class V : public Visitor<void(V::*)(const void*)const> {
+		public:
+			V() {
+				Register<Triangle>();
+			}
+		protected:
+			void ImplVisit(const Triangle*) const {
+				cout << "(const V)::ImplVisit(const Triangle*)" << endl;
+			}
+		};
+
+		V visitor;
+		auto visit_sphere = [](const Sphere*) { cout << "Lambda(const Sphere*)" << endl; };
+		visitor.Register(visit_sphere);
+		Triangle tri;
+		Sphere sphere;
+		void* s0 = &tri;
+		void* s1 = &sphere;
+		visitor.Visit(s0);
+		visitor.Visit(s1);
+	}
 }

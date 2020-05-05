@@ -25,11 +25,11 @@ int main() {
 			return new Point(x, y);
 		});
 
-	auto ptr = ReflectionMngr::Instance().Create(NAMEOF_TYPE(Point), 1.f, 2.f);
-	auto refl = ReflectionMngr::Instance().GetReflction(ptr);
+	void* ptr = ReflectionMngr::Instance().Create(NAMEOF_TYPE(Point), 1.f, 2.f);
+	ReflectionBase* refl = ReflectionMngr::Instance().GetReflction(ptr);
 
 	for (auto [n, v] : refl->VarPtrs(ptr))
 		cout << n << endl;
 	for (auto [k, v] : refl->Metas())
-		cout << k << ": " << v;
+		cout << k << ": " << v << endl;
 }

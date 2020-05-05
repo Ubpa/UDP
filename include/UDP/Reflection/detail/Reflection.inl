@@ -76,7 +76,7 @@ namespace Ubpa {
 		else {
 #ifndef NDEBUG
 			std::cerr << "WARNING::Reflection::Var:" << std::endl
-				<< "\t" << name << " is not registed" << std::endl;
+				<< "\t" << name << " is unregistered" << std::endl;
 #endif // !NDEBUG
 			return static_cast<U Obj::*>(nullptr);
 		}
