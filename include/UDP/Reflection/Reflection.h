@@ -5,11 +5,6 @@
 #include "ReflTraits.h"
 #include "ReflectionMngr.h"
 
-#include <_deps/nameof.hpp>
-
-#include <map>
-#include <string>
-
 namespace Ubpa::detail::Reflection_ {
 	template<typename Mem>
 	struct Register;
@@ -24,7 +19,8 @@ namespace Ubpa {
 
 		static void Init() noexcept { Instance(); }
 
-		constexpr std::string_view Name() noexcept { return nameof::nameof_type<Obj>(); }
+		static constexpr std::string_view StaticName() noexcept { return nameof::nameof_type<Obj>(); }
+		virtual std::string_view Name() const noexcept override { return nameof::nameof_type<Obj>(); }
 
 		// call after SetName()
 		Reflection& RegisterConstructor();
@@ -33,18 +29,22 @@ namespace Ubpa {
 
 		// member variable pointer, member function pointer
 		template<typename T>
-		Reflection& Register(T Obj::* ptr, std::string_view name) noexcept;
-		Reflection& Register(std::string_view key, std::string_view value) noexcept;
-		Reflection& Register(std::string_view field, std::string_view kind, std::string_view value) noexcept;
+		Reflection& Register(T Obj::* ptr, std::string_view name);
+		Reflection& Register(std::string_view key, std::string_view value);
+		Reflection& Register(std::string_view field, std::string_view key, std::string_view value);
 
-		virtual const std::string Meta(std::string_view key) const noexcept override;
-		virtual const xMap<std::string, std::string>& Metas() const noexcept override { return metamap; }
-		virtual const std::string FieldMeta(std::string_view field, std::string_view kind) const noexcept override;
+		virtual const std::string& Meta(std::string_view key) const override;
+		virtual bool HaveMeta(std::string_view key) const override;
+		virtual const xMap<std::string, std::string>& Metas() const noexcept override { return metaMap; }
+
+		virtual const std::string& FieldMeta(std::string_view field, std::string_view kind) const override;
+		virtual bool HaveFieldMeta(std::string_view field, std::string_view key) const override;
+		virtual const xMap<std::string, xMap<std::string, std::string>>& FieldMetas() const noexcept override { return varMetaMap; }
 
 		template<typename U>
 		MemVar<U Obj::*> Var(std::string_view name) const noexcept;
 
-		xMap<std::string, MemVarBase<Obj>*> Vars() const noexcept;
+		const xMap<std::string, MemVarBase<Obj>*>& Vars() const noexcept;
 
 		xMap<std::string, std::shared_ptr<VarPtrBase>> VarPtrs(Obj& obj) const noexcept;
 		xMap<std::string, std::shared_ptr<const VarPtrBase>> VarPtrs(const Obj& obj) const noexcept;
@@ -64,7 +64,8 @@ namespace Ubpa {
 		xMap<std::string, MemVarBase<Obj>*> n2mv;
 		xMap<std::string, MemFuncBase<Obj>*> n2mf;
 		xMap<std::string, MemCFuncBase<Obj>*> n2mcf;
-		xMap<std::string, std::string> metamap;
+		xMap<std::string, std::string> metaMap;
+		xMap<std::string, xMap<std::string, std::string>> varMetaMap;
 
 		Reflection() {
 			ReflTraitsIniter::Instance().Register<Obj>();

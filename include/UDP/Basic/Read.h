@@ -7,6 +7,9 @@ namespace Ubpa {
 	// so you should treat it as T but read only
 	template<typename Friend, typename T>
 	struct Read {
+		using friend_type = Friend;
+		using value_type = T;
+
 		template<typename... Args>
 		Read(Args&&... args) : val{ std::forward<Args>(args)... } {}
 
@@ -69,6 +72,9 @@ namespace Ubpa {
 
 	template<typename Friend, typename T>
 	struct Read<Friend, T*> {
+		using friend_type = Friend;
+		using value_type = T*;
+
 		template<typename... Args>
 		Read(Args&&... args) : val{ std::forward<Args>(args)... } {}
 
@@ -89,4 +95,11 @@ namespace Ubpa {
 		
 		T* val;
 	};
+
+	template<typename T>
+	struct IsRead : std::false_type {};
+	template<typename Friend, typename T>
+	struct IsRead<Read<Friend, T>> : std::true_type {};
+	template<typename T>
+	static constexpr bool IsRead_v = IsRead<T>::value;
 }

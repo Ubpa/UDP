@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../../Basic/xSTL/xStr.h"
-
 namespace Ubpa::detail::Reflection_ {
 	template<typename ArgList> struct Pack;
 }
@@ -18,21 +16,25 @@ namespace Ubpa {
 		if (target == constructors.end())
 			return nullptr;
 
-		if constexpr (sizeof...(Args) == 0) {
+		if constexpr (sizeof...(Args) == 0)
 			return target->second(nullptr);
-		}
 		else {
 			std::tuple<Args...> argTuple{ std::forward<Args>(args)... };
 			return target->second(&argTuple);
 		}
 	}
 
-	ReflectionBase* ReflectionMngr::GetReflction(size_t ID) const {
-		auto target = id2refl.find(ID);
-		if (target == id2refl.end())
-			return nullptr;
+	bool ReflectionMngr::IsRegistered(size_t ID) const {
+		return id2refl.find(ID) != id2refl.end();
+	}
 
-		return target->second;
+	bool ReflectionMngr::IsRegistered(const void* obj) const {
+		return IsRegistered(reinterpret_cast<size_t>(vtable(obj)));
+	}
+
+	ReflectionBase* ReflectionMngr::GetReflction(size_t ID) const {
+		assert(IsRegistered(ID));
+		return id2refl.find(ID)->second;
 	}
 
 	ReflectionBase* ReflectionMngr::GetReflction(const void* obj) const {
@@ -46,7 +48,7 @@ namespace Ubpa {
 
 	template<typename Func>
 	void ReflectionMngr::RegisterConstructor(std::string_view name, Func&& func) {
-		constructors[str(name)] = detail::Reflection_::Pack<FuncTraits_ArgList<Func>>::template run(func);
+		constructors.emplace(name, detail::Reflection_::Pack<FuncTraits_ArgList<Func>>::template run(std::forward<Func>(func)));
 	}
 }
 

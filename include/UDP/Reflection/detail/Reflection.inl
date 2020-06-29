@@ -32,39 +32,49 @@ namespace Ubpa {
 
 	template<typename Obj>
 	template<typename T>
-	Reflection<Obj>& Reflection<Obj>::Register(T Obj::* ptr, std::string_view name) noexcept {
+	Reflection<Obj>& Reflection<Obj>::Register(T Obj::* ptr, std::string_view name) {
+		// TODO: simplify
 		detail::Reflection_::Register<T Obj::*>::run(*this, ptr, name);
 		return *this;
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::Register(std::string_view key, std::string_view value) noexcept {
-		metamap.emplace(key, value);
+	Reflection<Obj>& Reflection<Obj>::Register(std::string_view key, std::string_view value) {
+		metaMap.emplace(key, value);
 		return *this;
 	}
 
 	template<typename Obj>
-	Reflection<Obj>& Reflection<Obj>::Register(std::string_view field, std::string_view kind, std::string_view value) noexcept {
-		metamap.try_emplace(std::string(field) + "::" + kind.data(), value);
+	Reflection<Obj>& Reflection<Obj>::Register(std::string_view field, std::string_view key, std::string_view value) {
+		varMetaMap.emplace(field, xMap<std::string, std::string>{})
+			.first->second.emplace(key, value);
 		return *this;
 	}
 
 	template<typename Obj>
-	const std::string Reflection<Obj>::Meta(std::string_view key) const noexcept {
-		auto target = metamap.find(key);
-		if (target == metamap.end())
-			return "";
-		else
-			return target->second;
+	const std::string& Reflection<Obj>::Meta(std::string_view key) const {
+		return metaMap.find(key)->second;
+	}
+	template<typename Obj>
+	bool Reflection<Obj>::HaveMeta(std::string_view key) const {
+		return  metaMap.find(key) != metaMap.end();
 	}
 
 	template<typename Obj>
-	const std::string Reflection<Obj>::FieldMeta(std::string_view field, std::string_view kind) const noexcept {
-		auto target = metamap.find(std::string(field) + "::" + kind.data());
-		if (target == metamap.end())
-			return "";
-		else
-			return target->second;
+	const std::string& Reflection<Obj>::FieldMeta(std::string_view field, std::string_view key) const {
+		assert(HaveFieldMeta(field, key));
+		return varMetaMap.find(field)->second.find(key)->second;
+	}
+
+	template<typename Obj>
+	bool Reflection<Obj>::HaveFieldMeta(std::string_view field, std::string_view key) const {
+		auto target0 = varMetaMap.find(field);
+		if (target0 == varMetaMap.end())
+			return false;
+		auto target1 = target0->second.find(key);
+		if (target1 == target0->second.end())
+			return false;
+		return true;
 	}
 
 	template<typename Obj>
@@ -83,7 +93,7 @@ namespace Ubpa {
 	}
 
 	template<typename Obj>
-	xMap<std::string, MemVarBase<Obj>*> Reflection<Obj>::Vars() const noexcept {
+	const xMap<std::string, MemVarBase<Obj>*>& Reflection<Obj>::Vars() const noexcept {
 		return n2mv;
 	}
 
@@ -159,8 +169,9 @@ namespace Ubpa::detail::Reflection_ {
 			}
 #endif // !NDEBUG
 			if constexpr (std::is_enum_v<T>) {
-				// enum is treated as int
-				refl.n2mv.emplace(name, new MemVar<int Obj::*>{ reinterpret_cast<int Obj::*>(ptr) });
+				// enum is treated as std::underlying_type_t<T>
+				using UnderlyingType = std::underlying_type_t<T>;
+				refl.n2mv.emplace(name, new MemVar<UnderlyingType Obj::*>{ reinterpret_cast<UnderlyingType Obj::*>(ptr) });
 			}
 			else
 				refl.n2mv.emplace(name, new MemVar<T Obj::*>{ ptr });
@@ -177,7 +188,7 @@ namespace Ubpa::detail::Reflection_ {
 			}
 #endif // !NDEBUG
 			refl.n2mv.emplace(name, new MemVar<T Obj::*>{ reinterpret_cast<T Obj::*>(ptr) });
-			refl.Register(name, ReflectionBase::Meta::read_only, ReflectionBase::Meta::default_value);
+			refl.Register(name, ReflectionBase::MetaKey::read_only, ReflectionBase::MetaKey::empty_value);
 		}
 	};
 

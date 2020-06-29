@@ -3,8 +3,6 @@
 #include "../Visitor/ncincVisitor.h"
 #include "VarPtr.h"
 
-#include "../Basic/xSTL/xMap.h"
-
 namespace Ubpa {
 	struct ReflectionBase;
 	template<typename T>
