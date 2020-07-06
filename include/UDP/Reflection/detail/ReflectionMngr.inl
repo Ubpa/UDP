@@ -43,7 +43,7 @@ namespace Ubpa {
 
 	template<typename Obj>
 	void ReflectionMngr::RegisterRefl(ReflectionBase* refl) {
-		id2refl[Visitor_GetID<Obj>()] = refl;
+		id2refl[CustomID<Obj>()] = refl;
 	}
 
 	template<typename Func>
@@ -57,15 +57,16 @@ namespace Ubpa::detail::Reflection_ {
 	struct Pack<TypeList<Args...>> {
 	private:
 		template<typename Ret, typename Func, typename ArgTuple, size_t... Ns>
-		static Ret unpack(const Func& func, const ArgTuple& argTuple, std::index_sequence<Ns...>) noexcept {
-			return func(std::get<Ns>(argTuple)...);
+		static Ret unpack(const Func& func, ArgTuple& argTuple, std::index_sequence<Ns...>) noexcept {
+			using ArgList = TypeList<Args...>;
+			return func(std::forward<At_t<ArgList, Ns>>(std::get<Ns>(argTuple))...);
 		}
 
 	public:
 		template<typename Func>
 		static auto run(Func&& func) noexcept {
 			return[func = std::forward<Func>(func)](void* ptr) ->void* {
-				const auto& argTuple = *reinterpret_cast<std::tuple<Args...>*>(ptr);
+				auto& argTuple = *reinterpret_cast<std::tuple<Args...>*>(ptr);
 				auto obj = unpack<FuncTraits_Ret<Func>>(func,
 					argTuple, std::make_index_sequence<sizeof...(Args)>{});
 				return reinterpret_cast<void*>(obj);
