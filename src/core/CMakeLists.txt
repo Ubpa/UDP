@@ -4,12 +4,12 @@ if(MSVC)
 endif()
 
 Ubpa_AddTarget(
-  MODE HEAD
+  MODE INTERFACE
   LIB
     Ubpa::UTemplate_core
 	Ubpa::UContainer_core
   INC
-    "include"
+    "${PROJECT_SOURCE_DIR}/include"
   C_OPTION
     ${c_options}
 )
