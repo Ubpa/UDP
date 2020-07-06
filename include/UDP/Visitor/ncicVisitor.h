@@ -3,16 +3,13 @@
 #include "cVisitor.h"
 
 namespace Ubpa {
-	template<typename Func>
-	class Visitor;
-
+	// non-const impl const visitor
 	template<typename Impl, typename Ret, typename... Args>
 	class Visitor<Ret(Impl::*)(const void*, Args...)> : private Visitor<Ret(const void*, Args...)> {
 	public:
 		using Visitor<Ret(const void*, Args...)>::Register;
 
 		inline Ret Visit(size_t ID, const void* ptr, Args... args);
-		inline Ret Visit(const void* ptr, Args... args);
 
 		template<typename T>
 		inline Ret Visit(const T* ptr, Args... args);

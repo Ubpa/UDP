@@ -12,17 +12,9 @@ namespace Ubpa {
 	}
 
 	template<typename Impl, typename Ret, typename... Args>
-	Ret Visitor<Ret(Impl::*)(void*, Args...)const>::Visit(void* ptr, Args... args) const {
-		return Visit(reinterpret_cast<size_t>(vtable(ptr)), ptr, std::forward<Args>(args)...);
-	}
-
-	template<typename Impl, typename Ret, typename... Args>
 	template<typename T>
 	inline Ret Visitor<Ret(Impl::*)(void*, Args...)const>::Visit(T* ptr, Args... args) const {
-		if constexpr (std::is_polymorphic_v<T>)
-			return Visit(static_cast<void*>(ptr), std::forward<Args>(args)...);
-		else
-			return Visit(TypeID<T>, ptr, std::forward<Args>(args)...);
+		return Visit(Visitor_GetID(ptr), ptr, std::forward<Args>(args)...);
 	}
 
 	template<typename Impl, typename Ret, typename... Args>
@@ -34,7 +26,7 @@ namespace Ubpa {
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename Derived>
 	void Visitor<Ret(Impl::*)(void*, Args...)const>::RegisterOne() {
-		impl_callbacks[detail::Visitor_::GetID<Derived>()] =
+		impl_callbacks[Visitor_GetID<Derived>()] =
 			[](const Impl* impl, void* ptr, Args... args) {
 				return detail::Visitor_::Accessor<Impl>::
 					template run<Derived*, Ret>(impl, ptr, std::forward<Args>(args)...);
@@ -50,7 +42,7 @@ namespace Ubpa {
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename T>
 	bool Visitor<Ret(Impl::*)(void*, Args...)const>::IsRegistered() const {
-		return IsRegistered(detail::Visitor_::GetID<T>());
+		return IsRegistered(Visitor_GetID<T>());
 	}
 
 	template<typename Impl, typename Ret, typename... Args>

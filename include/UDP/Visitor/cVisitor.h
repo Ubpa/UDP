@@ -3,15 +3,11 @@
 #include "Visitor.h"
 
 namespace Ubpa {
-	template<typename Func>
-	class Visitor;
-
+	// const visitor
 	template<typename Ret, typename... Args>
 	class Visitor<Ret(const void*, Args...)> {
 	public:
 		inline Ret Visit(size_t ID, const void* ptr, Args... args) const;
-		inline Ret Visit(const void* ptr, Args... args) const;
-
 		template<typename T>
 		inline Ret Visit(const T* ptr, Args... args) const;
 

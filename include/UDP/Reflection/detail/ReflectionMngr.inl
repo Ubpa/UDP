@@ -43,7 +43,7 @@ namespace Ubpa {
 
 	template<typename Obj>
 	void ReflectionMngr::RegisterRefl(ReflectionBase* refl) {
-		id2refl[detail::Visitor_::GetID<Obj>()] = refl;
+		id2refl[Visitor_GetID<Obj>()] = refl;
 	}
 
 	template<typename Func>

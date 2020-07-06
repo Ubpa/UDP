@@ -17,7 +17,7 @@ struct Triangle : IShape {};
 struct Sphere : IShape {};
 
 int main() {
-	{ // non const
+	{ // non-const visitor
 		Visitor<void(void*)> visitor;
 		auto visit_tri = [](Triangle*) { cout << "Lambda(Triangle*)" << endl; };
 		auto visit_sphere = [](Sphere*) { cout << "Lambda(Sphere*)" << endl; };
@@ -41,7 +41,7 @@ int main() {
 		visitor.Visit(s0);
 		visitor.Visit(s1);
 	}
-	{ // non const Impl non const ptr
+	{ // non-const impl non-const visitor
 		class V : public Visitor<void(V::*)(void*)> {
 		public:
 			V() {
@@ -64,7 +64,7 @@ int main() {
 		visitor.Visit(s0);
 		visitor.Visit(s1);
 	}
-	{ // non const Impl const ptr
+	{ // non-const impl const visitor
 		class V : public Visitor<void(V::*)(const void*)> {
 		public:
 			V() {
@@ -86,7 +86,7 @@ int main() {
 		visitor.Visit(s0);
 		visitor.Visit(s1);
 	}
-	{ // const Impl non const ptr
+	{ // const impl non-const visitor
 		class V : public Visitor<void(V::*)(void*)const> {
 		public:
 			V() {
@@ -109,7 +109,7 @@ int main() {
 		visitor.Visit(s0);
 		visitor.Visit(s1);
 	}
-	{ // const Impl const ptr
+	{ // const impl const visitor
 		class V : public Visitor<void(V::*)(const void*)const> {
 		public:
 			V() {
