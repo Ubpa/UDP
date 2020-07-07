@@ -42,9 +42,9 @@ int main() {
 	Reflection<A>::Instance()
 		.Register(&A::f, "f");
 
-	cout << Reflection<A>::Instance().Var<float>("f").Of(a) << endl;
-	Reflection<A>::Instance().Var<float>("f").Of(a) = 3.f;
-	cout << Reflection<A>::Instance().Var<float>("f").Of(a) << endl;
+	cout << Reflection<A>::Instance().Var<float>("f").of(a) << endl;
+	Reflection<A>::Instance().Var<float>("f").of(a) = 3.f;
+	cout << Reflection<A>::Instance().Var<float>("f").of(a) << endl;
 
 	Float f;
 	f + Int{ 2 };

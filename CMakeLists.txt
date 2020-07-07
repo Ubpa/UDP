@@ -8,6 +8,8 @@ Ubpa_InitUCMake()
 
 Ubpa_InitProject()
 
+include(cmake/UbpaAutoRefl.cmake)
+
 Ubpa_AddDep(UContainer 0.0.6)
 Ubpa_AddDep(UTemplate 0.4.6)
 Ubpa_AddDep(UANTLR 0.1.0)

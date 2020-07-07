@@ -10,7 +10,7 @@ namespace Ubpa {
 	template<typename Ret, typename... Args>
 	template<typename T>
 	Ret Visitor<Ret(const void*, Args...)>::Visit(const T* ptr, Args... args) const {
-		return Visit(CustomID(ptr), ptr, std::forward<Args>(args)...);
+		return Visit(CustomIDof(ptr), ptr, std::forward<Args>(args)...);
 	}
 
 	template<typename Ret, typename... Args>
@@ -44,7 +44,7 @@ namespace Ubpa {
 		static_assert(std::is_const_v<Derived>, "Visitor::RegisterOne: <Derived> must be const");
 		using RawDerived = std::remove_const_t<Derived>;
 
-		callbacks[CustomID<RawDerived>()] =
+		callbacks[CustomID<RawDerived>::get()] =
 			[func = std::forward<Func>(func)](const void* p, Args... args) {
 				return func(reinterpret_cast<const RawDerived*>(p), std::forward<Args>(args)...);
 			};

@@ -19,10 +19,10 @@ namespace Ubpa {
 			return reinterpret_cast<U Obj::*>(var);
 		}
 
-		virtual std::shared_ptr<VarPtrBase> PtrOf(Obj& obj) = 0;
-		virtual std::shared_ptr<VarPtrBase> PtrOf(Obj* obj) = 0;
-		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj& obj) = 0;
-		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj* obj) = 0;
+		virtual std::shared_ptr<VarPtrBase> Ptrof(Obj& obj) = 0;
+		virtual std::shared_ptr<VarPtrBase> Ptrof(Obj* obj) = 0;
+		virtual std::shared_ptr<const VarPtrBase> Ptrof(const Obj& obj) = 0;
+		virtual std::shared_ptr<const VarPtrBase> Ptrof(const Obj* obj) = 0;
 
 	protected:
 		void* Obj::* var;
@@ -45,33 +45,33 @@ namespace Ubpa {
 		MemVar(T Obj::* var = nullptr)
 			: MemVarBase<Obj>{ reinterpret_cast<void* Obj::*>(const_cast<RemoveConst_t<T> Obj::*>(var)) } {}
 
-		T& Of(Obj& obj) const noexcept {
+		T& of(Obj& obj) const noexcept {
 			return obj.*get();
 		}
-		T& Of(Obj* obj) const noexcept {
+		T& of(Obj* obj) const noexcept {
 			return obj->*get();
 		}
-		const T& Of(const Obj& obj) const noexcept {
+		const T& of(const Obj& obj) const noexcept {
 			return obj.*get();
 		}
-		const T& Of(const Obj* obj) const noexcept {
+		const T& of(const Obj* obj) const noexcept {
 			return obj->*get();
 		}
 
-		virtual std::shared_ptr<VarPtrBase> PtrOf(Obj& obj) override {
-			return std::make_shared<VarPtr<T>>(&Of(obj));
+		virtual std::shared_ptr<VarPtrBase> Ptrof(Obj& obj) override {
+			return std::make_shared<VarPtr<T>>(&of(obj));
 		}
 
-		virtual std::shared_ptr<VarPtrBase> PtrOf(Obj* obj) override {
-			return std::make_shared<VarPtr<T>>(&Of(obj));
+		virtual std::shared_ptr<VarPtrBase> Ptrof(Obj* obj) override {
+			return std::make_shared<VarPtr<T>>(&of(obj));
 		}
 
-		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj& obj) override {
-			return std::make_shared<const VarPtr<T>>(const_cast<T*>(&Of(obj)));
+		virtual std::shared_ptr<const VarPtrBase> Ptrof(const Obj& obj) override {
+			return std::make_shared<const VarPtr<T>>(const_cast<T*>(&of(obj)));
 		}
 
-		virtual std::shared_ptr<const VarPtrBase> PtrOf(const Obj* obj) override {
-			return std::make_shared<const VarPtr<T>>(const_cast<T*>(&Of(obj)));
+		virtual std::shared_ptr<const VarPtrBase> Ptrof(const Obj* obj) override {
+			return std::make_shared<const VarPtr<T>>(const_cast<T*>(&of(obj)));
 		}
 
 	private:

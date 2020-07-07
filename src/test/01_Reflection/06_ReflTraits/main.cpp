@@ -17,7 +17,7 @@ struct Cosmetics { virtual ~Cosmetics() = default; };
 struct Lipstick : Cosmetics { string name{ "mac" }; };
 struct Lipglaze : Cosmetics { std::array<float, 3> color{ 0.9f,0.1f,0.1f }; };
 
-class VarSerializer : public VarPtrVisitor<void(VarSerializer::*)()>, public ReflTraitsVisitor {
+class VarSerializer : public VarPtrVisitor<void(VarSerializer::*)()> {
 public:
 	VarSerializer() {
 		VarPtrVisitor<void(VarSerializer::*)()>::Register<
@@ -29,7 +29,6 @@ public:
 	}
 
 	using VarPtrVisitor<void(VarSerializer::*)()>::Register;
-	using ReflTraitsVisitor::Visit;
 
 protected:
 	template<typename T>
@@ -45,11 +44,12 @@ protected:
 		cout << "\"" << p << "\"";
 	}
 
-private:
-	virtual void Receive(void* obj, ReflectionBase& refl) override {
+public:
+	void Visit(void* obj) {
+		auto* refl = ReflectionMngr::Instance().GetReflction(obj);
 		cout << "{" << endl;
-		cout << "  \"type\": \"" << refl.Name() << "\"" << endl;
-		for (auto [n, v] : refl.VarPtrs(obj)) {
+		cout << "  \"type\": \"" << refl->Name() << "\"" << endl;
+		for (auto [n, v] : refl->VarPtrs(obj)) {
 			if (VarPtrVisitor<void(VarSerializer::*)()>::IsRegistered(v)) {
 				cout << "  \"" << n << "\"" << ": ";
 				VarPtrVisitor<void(VarSerializer::*)()>::Visit(v);
@@ -75,7 +75,6 @@ int main() {
 		.Register(&Lipglaze::color, NAMEOF(&Lipglaze::color).c_str());
 
 	VarSerializer vs;
-	ReflTraitsIniter::Instance().Init(vs);
 
 	/*vs.Register([](const int& v) {
 		cout << v;

@@ -22,7 +22,7 @@ int main() {
 
 	A a;
 	a.e = E::eA;
-	Reflection<A>::Instance().Var<int>("e").Of(&a) = static_cast<int>(E::eB);
+	Reflection<A>::Instance().Var<int>("e").of(&a) = static_cast<int>(E::eB);
 	cout << (a.e == E::eB ? "eB" : "not eB") << endl;
 	return 0;
 }

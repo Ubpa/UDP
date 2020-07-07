@@ -4,6 +4,8 @@
 #include "MemFunc.h"
 #include "ReflectionMngr.h"
 
+#include <_deps/nameof.hpp>
+
 namespace Ubpa::detail::Reflection_ {
 	template<typename Mem>
 	struct Register;

@@ -14,7 +14,7 @@ namespace Ubpa {
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename T>
 	inline Ret Visitor<Ret(Impl::*)(const void*, Args...)>::Visit(const T* ptr, Args... args) {
-		return Visit(CustomID(ptr), ptr, std::forward<Args>(args)...);
+		return Visit(CustomIDof(ptr), ptr, std::forward<Args>(args)...);
 	}
 
 	template<typename Impl, typename Ret, typename... Args>
@@ -26,7 +26,7 @@ namespace Ubpa {
 	template<typename Impl, typename Ret, typename... Args>
 	template<typename Derived>
 	void Visitor<Ret(Impl::*)(const void*, Args...)>::RegisterOne() {
-		impl_callbacks[CustomID<Derived>()] =
+		impl_callbacks[CustomID<Derived>::get()] =
 			[](Impl* impl, const void* ptr, Args... args) {
 				return detail::Visitor_::Accessor<Impl>::
 					template run<const Derived*, Ret>(impl, ptr, std::forward<Args>(args)...);

@@ -1,4 +1,4 @@
-#include <UDP/Reflection/Reflection.h>
+#include "Point.h"
 
 #include <string>
 #include <iostream>
@@ -6,34 +6,17 @@
 using namespace std;
 using namespace Ubpa;
 
-struct [[size("8")]] Point {
-	float test(float n) {
-		cout << n << endl;
-		return x + y + n;
-	}
-	[[not_serialize]]
-	float x;
-	[[info("hello")]]
-	float y;
-};
-
 int main() {
-	Reflection<Point>::Instance()
-		.Register("size", "8")
-		.Register(&Point::x, "x")
-		.Register(&Point::y, "y")
-		.Register("x", "not_serialize", "")
-		.Register("y", "info", "hello")
-		.Register(&Point::test, "test");
-
 	Point p;
+	AutoRefl::Register_Ubpa_Point();
+
 	Reflection<Point>::Instance().Var<float>("x").of(p) = 3;
 	Reflection<Point>::Instance().Var<float>("y").of(p) = 4;
+
 	for (auto nv : Reflection<Point>::Instance().Vars()) {
 		cout << nv.first << ": ";
 		cout << nv.second->As<float>().of(p) << endl;
 	}
-	cout << Reflection<Point>::Instance().Call<float>("test", p, 1.f) << endl;
 
 	for (auto [name, var] : Reflection<Point>::Instance().Vars()) {
 		cout << name << ": ";
@@ -50,7 +33,4 @@ int main() {
 		for (const auto& [key, value] : t)
 			cout << "- " << key << " : " << value << endl;
 	}
-
-	for (auto nf : Reflection<Point>::Instance().Funcs())
-		cout << Reflection<Point>::StaticName() << "::" << nf.first;
 }

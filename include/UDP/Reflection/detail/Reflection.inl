@@ -101,7 +101,7 @@ namespace Ubpa {
 	xMap<std::string, std::shared_ptr<VarPtrBase>> Reflection<Obj>::VarPtrs(Obj& obj) const noexcept {
 		xMap<std::string, std::shared_ptr<VarPtrBase>> rst;
 		for (const auto& [n, mv] : n2mv)
-			rst[n] = mv->PtrOf(obj);
+			rst[n] = mv->Ptrof(obj);
 		return rst;
 	}
 
@@ -109,7 +109,7 @@ namespace Ubpa {
 	xMap<std::string, std::shared_ptr<const VarPtrBase>> Reflection<Obj>::VarPtrs(const Obj& obj) const noexcept {
 		xMap<std::string, std::shared_ptr<const VarPtrBase>> rst;
 		for (const auto& [n, mv] : n2mv)
-			rst[n] = mv->PtrOf(obj);
+			rst[n] = mv->Ptrof(obj);
 		return rst;
 	}
 

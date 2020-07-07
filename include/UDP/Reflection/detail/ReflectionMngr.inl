@@ -1,6 +1,8 @@
 #pragma once
 
 #include <UTemplate/TypeList.h>
+#include "../../Basic/CustomID.h"
+#include <UTemplate/Func.h>
 
 namespace Ubpa::detail::Reflection_ {
 	template<typename ArgList> struct Pack;
@@ -45,7 +47,7 @@ namespace Ubpa {
 
 	template<typename Obj>
 	void ReflectionMngr::RegisterRefl(ReflectionBase* refl) {
-		id2refl[CustomID<Obj>()] = refl;
+		id2refl[CustomID<Obj>::get()] = refl;
 	}
 
 	template<typename Func>

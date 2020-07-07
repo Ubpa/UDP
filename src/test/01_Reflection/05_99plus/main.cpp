@@ -24,7 +24,7 @@ struct MemVar : MemVarBase<Obj> {
     virtual void Set(Obj& obj, void* value) const override {
         obj.*reinterpret_cast<T Obj::*>(this->var) = *reinterpret_cast<T*>(value);
     }
-    T& Of(Obj& obj) const { return obj.*reinterpret_cast<T Obj::*>(this->var); }
+    T& of(Obj& obj) const { return obj.*reinterpret_cast<T Obj::*>(this->var); }
 };
 
 template<typename Obj, typename Ret, typename... Args> struct MemFunc;
@@ -150,11 +150,11 @@ int main() {
         .Register(&Point::Add, "Add");
 
     Point p;
-    Reflection<Point>::Instance().Var<float>("x").Of(p) = 1.f;
+    Reflection<Point>::Instance().Var<float>("x").of(p) = 1.f;
     void* ptr = reinterpret_cast<void*>(&p);
     ReflMngr::Instance().Set(ptr, "y", 2.f);
     Point q = ReflMngr::Instance().Call<Point>(ptr, "Add", 10.f);
     Point w = Reflection<Point>::Instance().Call<Point>("Add", q, 100.f);
     for (auto& nv : Reflection<Point>::Instance().Vars())
-        cout << nv.first << ": " << nv.second->As<float>().Of(w) << endl;
+        cout << nv.first << ": " << nv.second->As<float>().of(w) << endl;
 }
