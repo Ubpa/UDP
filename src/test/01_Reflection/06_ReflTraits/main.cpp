@@ -46,9 +46,9 @@ protected:
 	}
 
 private:
-	virtual void Receive(void* obj, std::string_view name, ReflectionBase& refl) override {
+	virtual void Receive(void* obj, ReflectionBase& refl) override {
 		cout << "{" << endl;
-		cout << "  \"type\": \"" << name << "\"" << endl;
+		cout << "  \"type\": \"" << refl.Name() << "\"" << endl;
 		for (auto [n, v] : refl.VarPtrs(obj)) {
 			if (VarPtrVisitor<void(VarSerializer::*)()>::IsRegistered(v)) {
 				cout << "  \"" << n << "\"" << ": ";

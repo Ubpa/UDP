@@ -1,5 +1,7 @@
 #pragma once
 
+#include <UTemplate/TypeList.h>
+
 namespace Ubpa::detail::Reflection_ {
 	template<typename ArgList> struct Pack;
 }

@@ -68,7 +68,6 @@ namespace Ubpa {
 		xMap<std::string, xMap<std::string, std::string>> varMetaMap;
 
 		Reflection() {
-			ReflTraitsIniter::Instance().Register<Obj>();
 			ReflectionMngr::Instance().RegisterRefl<Obj>(this);
 			if constexpr (std::is_constructible_v<Obj>)
 				RegisterConstructor();

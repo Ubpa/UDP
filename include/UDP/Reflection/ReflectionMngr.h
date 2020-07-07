@@ -2,6 +2,7 @@
 
 #include "ReflectionBase.h"
 #include "../Basic/vtable.h"
+#include <functional>
 
 namespace Ubpa {
 	template<typename Obj>
@@ -31,7 +32,7 @@ namespace Ubpa {
 
 	private:
 		std::map<size_t, ReflectionBase*> id2refl;
-		xMap<std::string, std::function<void* (void*)>> constructors;
+		xMap<std::string, std::function<void*(void*)>> constructors;
 
 		ReflectionMngr() = default;
 	};
