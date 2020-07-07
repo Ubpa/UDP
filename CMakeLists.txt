@@ -10,6 +10,7 @@ Ubpa_InitProject()
 
 Ubpa_AddDep(UContainer 0.0.6)
 Ubpa_AddDep(UTemplate 0.4.6)
+Ubpa_AddDep(UANTLR 0.1.0)
 
 Ubpa_AddSubDirsRec(include)
 Ubpa_AddSubDirsRec(src)

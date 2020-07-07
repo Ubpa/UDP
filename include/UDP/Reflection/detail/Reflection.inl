@@ -168,12 +168,12 @@ namespace Ubpa::detail::Reflection_ {
 					<< "\t" << name << " is already registed" << std::endl;
 			}
 #endif // !NDEBUG
-			if constexpr (std::is_enum_v<T>) {
-				// enum is treated as std::underlying_type_t<T>
-				using UnderlyingType = std::underlying_type_t<T>;
-				refl.n2mv.emplace(name, new MemVar<UnderlyingType Obj::*>{ reinterpret_cast<UnderlyingType Obj::*>(ptr) });
-			}
-			else
+			//if constexpr (std::is_enum_v<T>) {
+			//	// enum is treated as std::underlying_type_t<T>
+			//	using UnderlyingType = std::underlying_type_t<T>;
+			//	refl.n2mv.emplace(name, new MemVar<UnderlyingType Obj::*>{ reinterpret_cast<UnderlyingType Obj::*>(ptr) });
+			//}
+			//else
 				refl.n2mv.emplace(name, new MemVar<T Obj::*>{ ptr });
 		}
 	};

@@ -2,7 +2,6 @@
 
 #include "MemVar.h"
 #include "MemFunc.h"
-#include "ReflTraits.h"
 #include "ReflectionMngr.h"
 
 namespace Ubpa::detail::Reflection_ {
