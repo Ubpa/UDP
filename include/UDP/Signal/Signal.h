@@ -23,4 +23,4 @@ namespace Ubpa {
 	};
 }
 
-#include "detail/Signal.inl"
+#include "details/Signal.inl"

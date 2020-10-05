@@ -35,4 +35,4 @@ namespace Ubpa {
 	};
 }
 
-#include "detail/cicVisitor.inl"
+#include "details/cicVisitor.inl"

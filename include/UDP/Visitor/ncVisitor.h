@@ -32,4 +32,4 @@ namespace Ubpa {
 	};
 }
 
-#include "detail/ncVisitor.inl"
+#include "details/ncVisitor.inl"

@@ -9,4 +9,4 @@ namespace Ubpa {
 	class Visitor;
 }
 
-#include "detail/Visitor.inl"
+#include "details/Visitor.inl"

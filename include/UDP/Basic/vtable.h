@@ -41,4 +41,4 @@ namespace Ubpa {
 	}
 }
 
-#include "detail/vtable.inl"
+#include "details/vtable.inl"

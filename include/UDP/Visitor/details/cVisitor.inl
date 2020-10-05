@@ -22,13 +22,18 @@ namespace Ubpa {
 	template<typename Ret, typename... Args>
 	template<typename Func>
 	void Visitor<Ret(const void*, Args...)>::Register(size_t ID, Func&& func) {
-		using ArgList = FuncTraits_ArgList<Func>;
-		using DerivedPointer = Front_t<ArgList>;
-		using Derived = std::remove_pointer_t<DerivedPointer>;
-		static_assert(std::is_const_v<Derived>, "Visitor::RegisterOne: <Derived> must be const");
-		callbacks[ID] = [func = std::forward<Func>(func)](const void* p, Args... args) {
-			return func(reinterpret_cast<const Derived*>(p), std::forward<Args>(args)...);
-		};
+		if constexpr (std::is_same_v<FuncTraits_Signature<Func>, Ret(const void*, Args...)>) {
+			callbacks[ID] = std::forward<Func>(func);
+		}
+		else {
+			using ArgList = FuncTraits_ArgList<Func>;
+			using DerivedPointer = Front_t<ArgList>;
+			using Derived = std::remove_pointer_t<DerivedPointer>;
+			static_assert(std::is_const_v<Derived>, "Visitor::RegisterOne: <Derived> must be const");
+			callbacks[ID] = [func = std::forward<Func>(func)](const void* p, Args... args) {
+				return func(reinterpret_cast<const Derived*>(p), std::forward<Args>(args)...);
+			};
+		}
 	}
 
 	template<typename Ret, typename... Args>
@@ -43,6 +48,7 @@ namespace Ubpa {
 
 		static_assert(std::is_const_v<Derived>, "Visitor::RegisterOne: <Derived> must be const");
 		using RawDerived = std::remove_const_t<Derived>;
+		static_assert(!std::is_void_v<RawDerived>, "Visitor::RegisterOne: <Derived> must not be void");
 
 		callbacks[CustomID<RawDerived>::get()] =
 			[func = std::forward<Func>(func)](const void* p, Args... args) {

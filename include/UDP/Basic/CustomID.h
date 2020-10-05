@@ -23,4 +23,4 @@ namespace Ubpa {
 	}
 }
 
-#include "detail/CustomID.inl"
+#include "details/CustomID.inl"
